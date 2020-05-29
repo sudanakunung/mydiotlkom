@@ -1,0 +1,16 @@
+{
+    "name": "MYDIO Sing Lite",
+    "short_name" : "MYDIO Sing",
+    "start_url": ".",
+    "scope" : "./",
+    "icons": [
+        {
+            "src": "assets/images/logo_md_box.png",
+			"sizes": "192x192",
+			"type": "image/png"
+        }
+    ],
+    "theme_color": "transparent",
+    "background_color": "transparent",
+    "display": "standalone"
+}
