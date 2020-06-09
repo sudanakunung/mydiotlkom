@@ -53,6 +53,13 @@ $route['default_controller'] = 'Home';
 
 $route['install-app'] = 'Home/installApp';
 
+//Search Friends
+$route['friend-by-search'] = 'SearchFriend/index';
+
+//Friends Page
+$route['friends'] = 'Friends/index';
+$route['friend-profile/(:num)'] = 'Friends/profile/$1';
+
 //Profile Member
 $route['profile'] = 'ProfileMember/index';
 $route['edit-profile'] = 'ProfileMember/edit_profile';

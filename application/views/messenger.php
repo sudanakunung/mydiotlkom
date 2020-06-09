@@ -157,7 +157,7 @@
     function notifchat(){
         
         $.ajax({
-            url: "<?= base_url('messenger/notifchats'); ?>",
+            url: "<?= base_url('Messenger/notifchats'); ?>",
             cache: false,
             success: function(data){
 

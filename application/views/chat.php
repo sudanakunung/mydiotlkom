@@ -258,7 +258,7 @@
     function cek_new_chat(){
 
         $.ajax({
-            url: "<?= base_url('messenger/ceknewchat'); ?>",
+            url: "<?= base_url('Messenger/ceknewchat'); ?>",
             type: 'POST',
             data: {
                 'receiver_id': '<?= $receiver_id; ?>'
@@ -272,7 +272,7 @@
 
                     $.each( data, function( key, value ) {
                         $.ajax({
-                            url: "<?= base_url('messenger/updatereadnewchat'); ?>",
+                            url: "<?= base_url('Messenger/updatereadnewchat'); ?>",
                             type: 'POST',
                             data: {
                                 'chat_messages_id': value.id
@@ -314,7 +314,7 @@
             $('#btn-submit-chat').html('<i class="fa fa-spinner fa-spin loading" aria-hidden="true"></i>');
             
             $.ajax({
-                url: '<?= base_url('messenger/storechat'); ?>',
+                url: "<?= base_url('Messenger/storechat'); ?>",
                 type: 'POST',
                 data: {
                     'receiver_id': '<?= $receiver_id; ?>',
@@ -367,7 +367,7 @@
             var formData = new FormData(this);
 
             $.ajax({
-                url: '<?= base_url('messenger/uploadimage'); ?>',
+                url: "<?= base_url('Messenger/uploadimage'); ?>",
                 dataType: 'json',
                 type: 'POST',
                 data: formData,

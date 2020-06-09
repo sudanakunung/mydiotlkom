@@ -208,7 +208,9 @@
                       </span>
                     </div>
                     
-                    <input onclick="window.location = '<?= base_url('song-by-search') ?>';" type="text" class="form-control search" placeholder="Search Artist or Song's Title..." aria-describedby="basic-addon1" readonly="true" style="background: transparent;">
+                    <!-- <input onclick="window.location = '<?= base_url('song-by-search') ?>';" type="text" class="form-control search" placeholder="Search Artist or Song's Title..." aria-describedby="basic-addon1" readonly="true" style="background: transparent;"> -->
+
+                    <input id="search-input" type="text" class="form-control search" placeholder="Search Artist or Song's Title..." aria-describedby="basic-addon1" style="background: transparent; color: white;" yang-dicari="song" autocomplete="off">
 
                   </div>
 
@@ -240,7 +242,8 @@
               </div>
               
               <div class="collapse navbar-collapse d-none" id="navbarCollapse">
-                  <!-- <ul class="navbar-nav mr-auto">
+                  <!-- 
+                  <ul class="navbar-nav mr-auto">
                       <li class="search-tits" style="margin-bottom: 10px">
                                               
                           <form class="form-inline mt-2 mt-md-0" action="<?php echo site_url($url.'/search');?>" method="GET">
@@ -273,7 +276,8 @@
                       </li>
                   </ul> -->
 
-                  <!-- <ul class="navbar-nav mr-auto d-md-none">
+                  <!-- 
+                  <ul class="navbar-nav mr-auto d-md-none">
                       <li class="nav-item">
                           <a class="nav-link" href="<?php echo site_url($url.'/about')?>"><?php echo $this->lang->line('About');?> <span class="sr-only">(current)</span></a>
                       </li>
@@ -323,13 +327,27 @@
                       <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
                   </form>
                   -->
-                  
               </div>
 
               <div class="search-sign" style="margin-right: 15px;">
               </div>
           </nav>
           <!--/.container    -->
+
+          <div class="search-suggest container bg-white" style="display: none;">
+            <div class="row">
+                <div class="col-12 p-2">
+                  Lagu Satu
+                </div>
+                <div class="col-12 p-2">
+                  Lagu Satu
+                </div>
+                <div class="col-12 p-2">
+                  Lagu Satu
+                </div>
+            </div>            
+          </div>
+
       </section>
 
       <aside class="js-offcanvas" data-offcanvas-options='{ "modifiers": "left,overlay" }' id="off-canvas" style="background-color:rgba(0,0,0,0.6);">

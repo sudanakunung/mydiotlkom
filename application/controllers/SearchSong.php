@@ -16,9 +16,11 @@ class SearchSong extends CI_Controller {
 
 	public function index()
 	{
+		$keyword = $this->input->get('keyword');
+		
 		$param = [
 			'type' => 'title',
-			'query' => '',
+			'query' => $keyword,
 			'offset' => 0,
 			'limit' => 10,
 		];
@@ -30,7 +32,7 @@ class SearchSong extends CI_Controller {
 		$navbar_back = true;
 		$title = 'Back';
 		$this->load->view('header', compact('navbar_back','title'));
-		$this->load->view('search_songs.php', compact('respones'));
+		$this->load->view('search_songs', compact('respones','keyword'));
 	}
 
 	public function search_song()
@@ -48,7 +50,7 @@ class SearchSong extends CI_Controller {
 
 		$html = '<p>Search result for you : </p>';
 
-		foreach ($respones['array'] as $key => $value){
+		foreach ($respones['array'] as $value){
 
 			if($key > 0){
 				$border = 'style="border-top: solid 1px #d8d8d8;"';
@@ -92,6 +94,53 @@ class SearchSong extends CI_Controller {
             </div>
 			';
         }
+
+        $return = [
+        	'html' => $html,
+        ];
+
+        header('Content-Type: application/json');
+    	echo json_encode($return);
+	}
+	
+	public function search_song_suggest()
+	{
+		$param = [
+			'type' => 'litetitle',
+			'query' => $this->input->post('keyword'),
+			'offset' => 0,
+			'limit' => 10,
+		];
+
+		$data = $this->curl->simple_get($this->url_api.'/QuerySong?'.http_build_query($param));
+
+		$respones = json_decode($data, true);
+		
+		$artists = [];
+		foreach ($respones['array'] as $a) {
+			$artists[] = $a['artist'];
+		}
+		
+		$artists_uniq = array_unique($artists);
+
+		$html = '<div class="row">';
+
+		foreach ($artists_uniq as $value){
+
+			if($key > 0){
+				$border = 'style="border-top: solid 1px #d8d8d8;"';
+			} else {
+				$border = '';
+			}
+			
+			$html .= '
+			<div class="artist-suggest col-12 py-3 border-top" key-word="'.addslashes(str_replace(' ', '+', $value)).'" return false;" '.$border.'>
+				<span>'.addslashes($value).'</span>
+			</div>
+			';
+        }
+		
+		$html .= '</div>';
 
         $return = [
         	'html' => $html,

@@ -47,15 +47,20 @@ body {
     width: 25px;
 }
 .title-artist{
+    white-space: nowrap;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 8px;
     line-height: 1.1; 
-    height: 48px;
+    height: 40px;
 }
 .title{
-    font-size: 15px;
+    font-size: 17px;
     line-height: 1;
 }
 .artist{
-    font-size: 13px;
+    font-size: 15px;
     line-height: 1;
 }
 .info-icon{
@@ -146,6 +151,16 @@ body {
     .first.tab-content{
         margin-top: -9px;
     }
+}
+
+.overlay{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    background-color: rgba(0,0,0,0.5);
 }
 </style>
 
@@ -304,9 +319,10 @@ body {
 </div>
 
 <!-- For Mobile -->
+<div class="overlay" style="display: none;"></div>
 <div class="d-block d-sm-none" style="padding-bottom: 74px; padding-top: 56px;">
     <div id="banner-slider" class="owl-carousel owl-theme" style="z-index: -1;">
-        <?php 
+        <?php
         foreach ($banner_slider['array']  as $bs) { ?>
             <div class="item p-0">
                 <img src="<?= $bs['urlImage']; ?>" alt="<?= $bs['title']; ?>">
@@ -319,13 +335,17 @@ body {
     <nav class="nav-header">
         <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
             <a class="nav-item nav-link active text-white" id="nav-featured-tab" data-toggle="tab" href="#nav-featured" role="tab"
-               aria-controls="nav-home" aria-selected="true">FEATURED</a>
+               aria-controls="nav-home" aria-selected="true" search="song">FEATURED</a>
             <a class="nav-item nav-link text-white" id="nav-all-tab" data-toggle="tab" href="#nav-all" role="tab"
-               aria-controls="nav-profile" aria-selected="false">ALL</a>
+               aria-controls="nav-profile" aria-selected="false" search="song">ALL</a>
             <a class="nav-item nav-link text-white" id="nav-trending-tab" data-toggle="tab" href="#nav-trending" role="tab"
-               aria-controls="nav-contact" aria-selected="false">TRENDING</a>
+               aria-controls="nav-contact" aria-selected="false" search="song">
+                TRENDING
+            </a>
             <a class="nav-item nav-link text-white" id="nav-feeds-tab" data-toggle="tab" href="#nav-feeds" role="tab"
-               aria-controls="nav-contact" aria-selected="false">TOP FEEDS</a>
+               aria-controls="nav-contact" aria-selected="false" search="friend">
+                TOP FEEDS
+            </a>
         </div>
     </nav>
     <!--tabs-->
@@ -346,9 +366,9 @@ body {
             <nav>
                 <div class="nav second-nav nav-tabs nav-fill" id="nav-tab" role="tablist">
                     <a class="nav-item nav-link text-secondary active" id="nav-karafie-tab" data-toggle="tab" href="#nav-karafie" role="tab"
-                       aria-controls="nav-home" aria-selected="true">TOP KARAFIE</a>
+                       aria-controls="nav-home" aria-selected="true" search="friend">TOP KARAFIE</a>
                     <a class="nav-item nav-link text-secondary" id="nav-karaclip-tab" data-toggle="tab" href="#nav-karaclip" role="tab"
-                       aria-controls="nav-profile" aria-selected="false">TOP KARACLIP</a>
+                       aria-controls="nav-profile" aria-selected="false" search="friend">TOP KARACLIP</a>
                 </div>
             </nav>
 
@@ -425,7 +445,7 @@ body {
 <script type="text/javascript">
     function notifchat(){
         $.ajax({
-            url: "<?= base_url('messenger/notifmessages'); ?>",
+            url: "<?= base_url('Messenger/notifmessages'); ?>",
             cache: false,
             success: function(data){
                 if(data.jumlah > 0){
@@ -438,7 +458,108 @@ body {
     }
 
     $(document).ready(function(){
-        notifchat();
+        // notifchat();
+    });
+</script>
+
+<script type="text/javascript">
+    $(".search").focus(function(e){
+        e.preventDefault();
+        
+        $('.overlay').show();
+        $('.search-suggest').hide();
+    });
+    
+    $('.search').keyup(function(event){
+		
+		let searchFor = $('.search').attr('yang-dicari');
+		let keyword = $(this).val();
+			
+        if(event.keyCode == 13){
+            $('.search-suggest').hide();
+
+			if(searchFor == "song"){
+				window.location = "<?= base_url('song-by-search?keyword=') ?>" + keyword;
+			} else {
+				window.location = "<?= base_url('friend-profile/') ?>" + keyword;
+			}
+        } else {
+            let yang_dicari = $(this).attr("yang-dicari");
+            getDatas(keyword, yang_dicari);
+        }
+    });
+    
+    $('.search-icon').click(function(event){
+        $('.search-suggest').hide();
+        let keyword = $('.search').val();
+        let searchFor = $('.search').attr('yang-dicari');
+        
+        if(searchFor == "song"){
+            var urlClickFromIcon = "<?= base_url('song-by-search?keyword=') ?>" + keyword;
+        } else {
+            var urlClickFromIcon = "<?= base_url('friend-profile/') ?>" + keyword;
+        }
+
+        window.location = urlClickFromIcon;
+    });
+
+    $(".search").blur(function(e){
+        $(".artist-suggest").click(function() {
+            let keyword = $(this).attr('key-word');
+            let searchFor = $('.search').attr('yang-dicari');
+        
+            if(searchFor === "song"){
+                var urlEnterKeyboard = "<?= base_url('song-by-search?keyword=') ?>" + keyword;
+            } else {
+                var urlEnterKeyboard = "<?= base_url('friend-profile/') ?>" + keyword;
+            }
+            window.location = urlEnterKeyboard;
+        });
+
+        $(".overlay").click(function() {
+            $('.overlay').hide();
+            $('.search-suggest').hide();
+			$('.search').val("");
+        });
+    });
+
+    function getDatas(keyword, yang_dicari) {
+        if(yang_dicari == "song"){
+            var url_search = "<?= base_url('SearchSong/search_song_suggest'); ?>";
+        } else {
+            var url_search = "<?= base_url('SearchFriend/search_friend_suggest'); ?>";
+        }
+        
+        $('.search-suggest').html('<div class="col-md-12"><center><img id="lazy-loader" src="<?= base_url('home/images/loader.gif');?>"/></center></div>');
+        
+        $('.overlay').show();
+        
+        $('.search-suggest').show();
+        
+        $.ajax({
+            url: url_search,
+            type: 'POST',
+            dataType: 'json',
+            data: {'keyword': keyword}
+        })
+        .done(function(data) {
+            $('.search-suggest').html(data.html);
+        })
+        .fail(function() {
+            alert('Terjadi Kesalahan dengan Koneksi Internet Anda');
+        });
+    }
+
+    $(".nav-item").click(function(e){
+        let searchFor = $(this).attr('search');
+
+        if(searchFor == "song"){
+            $(".search").attr("placeholder", "Search Artist or Song's Title...");
+            $(".search").attr("yang-dicari", "song");
+        } else {
+            $(".search").attr("placeholder", "Search MYDIO Friends...");
+            $(".search").attr("yang-dicari", "friend");
+        }
     });
 </script>
 

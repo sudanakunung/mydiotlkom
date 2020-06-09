@@ -1,12 +1,15 @@
 var cc = new Castjs();
 
 cc.on('available', () => {
-  $('#cast').removeClass('disabled')
+  // $('#cast').removeClass('disabled')
+  $('.cast-icon').attr('src', './assets/images/cast.jpg')
 })
 
 cc.on('session', () => {
   $('#cast').removeClass('disabled')
   $('#cast').addClass('session')
+  $('.cast-icon').attr('src', './assets/images/cast_on.jpg')
+  $('.cast').attr('cast-status', 'on')
   if (cc.paused) {
     $('#play').removeClass('fa-pause').addClass('fa-play')
   } else {
@@ -16,6 +19,8 @@ cc.on('session', () => {
 
 cc.on('disconnect', () => {
   $('#cast').removeClass('session')
+  $('.cast-icon').attr('src', './assets/images/cast.jpg')
+  $('.cast').attr('cast-status', 'off')
 })
 
 cc.on('state', (state) => {
@@ -59,67 +64,36 @@ cc.on('timeupdate', () => {
   $('input[type="range"]').rangeslider('update', true);
 })
 
-// $('#cast').on('click', () => {
-//   if (cc.available) {
-//     cc.cast('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4', {
-//       poster:      'https://fenny.github.io/Castjs/demo/poster.jpg',
-//       title:       'Sintel',
-//       description: 'Third Open Movie by Blender Foundation',
-//       subtitles: [{
-//           active: true,
-//           label:  'English',
-//           source: 'https://fenny.github.io/Castjs/demo/english.vtt'
-//       }, {
-//           label:  'Spanish',
-//           source:    'https://fenny.github.io/Castjs/demo/spanish.vtt'
-//       }],
-//       muted:  false,
-//       paused: false
-//     })
-//   }
-// })
-
 function cast(url, songtitle, artist, poster, unsubscibe){
   if (cc.available) {
-
-    // var url = 'https://www5.mydiosing.com:1935/mydiosing/smil:song-122431539766085876.smil/playlist.m3u8';
-
-    // cc.cast(''+url+'', {
-    //   poster:      'https://www4.mydiosing.com:8843/poster/poster-12243.jpg',
-    //   title:       'Sintel',
-    //   description: 'Third Open Movie by Blender Foundation',
-    //   subtitles: [{
-    //       active: true,
-    //       label:  'English',
-    //       source: 'https://fenny.github.io/Castjs/demo/english.vtt'
-    //   }, {
-    //       label:  'Spanish',
-    //       source:    'https://fenny.github.io/Castjs/demo/spanish.vtt'
-    //   }],
-    //   muted:  false,
-    //   paused: false
-    // })
-
     cc.cast(''+url+'', {
-      poster:      ''+poster+'',
-      title:       ''+artist+'',
+      poster: ''+poster+'',
+      title: ''+artist+'',
       description: ''+songtitle+'',
-      subtitles: false,
       muted:  false,
       paused: false
-    }, unsubscibe)
+    })
   }
 }
 
-// $('.jq-dropdown-menu').on('click', 'a', function(e) {
-//   e.preventDefault();
-//   var index = $(this).attr('href')
-//   if (cc.session) {
-//     cc.subtitle(index)
-//   }
-//   $('.jq-dropdown-menu a').removeClass('active')
-//   $(this).addClass('active')
-// })
+$('.vocal').on('click', (e) => {
+  
+  e.preventDefault();
+  
+  var index = $('.vocal').attr('index-track');
+  
+  if (cc.session) {
+    cc.subtitle(index);
+
+    if(index == "1"){
+      $('.vocal').attr('index-track', '2');
+      $('.vocal-icon').attr('src', './assets/images/vocal.jpg');
+    } else if(index == "2")  {
+      $('.vocal').attr('index-track', '1');
+      $('.vocal-icon').attr('src', './assets/images/no_vocal.jpg');
+    }
+  } 
+})
 
 $('.vjs-mute-control').on('click', () => {
   
@@ -134,101 +108,93 @@ $('.vjs-mute-control').on('click', () => {
   }
 })
 
-// $('#mute').on('click', () => {
-//   if (cc.session) {
-//     if ($('#mute').hasClass('fa-volume-up')) {
-//       cc.mute();
-//       $('#mute').removeClass('fa-volume-up').addClass('fa-volume-mute')
-//     } else {
-//       cc.unmute();
-//       $('#mute').removeClass('fa-volume-mute').addClass('fa-volume-up')
-//     }
-//   }
-// })
-
-
-$('.button-cast').on('click', () => {
-  alert('aa');
-})
-
-$('.vjs-play-control').on('click', () => {
-  
-  if (cc.session) {
-    if (player2.paused()) {
-      cc.pause();
-    } else {
-      cc.seek(player2.currentTime(), true);
-      cc.play();
-    }
-  }
-
-})
-
-// $('#play').on('click', () => {
-//   if (cc.session) {
-//     if ($('#play').hasClass('fa-play')) {
-//       cc.play();
-//       $('#play').removeClass('fa-play').addClass('fa-pause')
-//     } else {
-//       cc.pause();
-//       $('#play').removeClass('fa-pause').addClass('fa-play')
-//     }
-//   }
-// })
-
-// $('.button-pause').on('click', () => {
-//   if (cc.session) {
-//     cc.pause();
-//     $('.button-pause').addClass('hide');
-//     $('.button-play').show();
-//     $('.button-play').removeClass('hide');
-//   }
-// })
-
-// $('.button-play').on('click', () => {
-//   if (cc.session) {
-//     cc.play();
-//     $('.button-play').addClass('hide');
-//     $('.button-pause').show();
-//     $('.button-pause').removeClass('hide');
-//   }
-// })
-
-// $('#stop').on('click', () => {
-//   if (cc.session) {
-//     cc.disconnect();
-//     $('#cast').removeClass('session');
-//   }
-// })
-
-// $('#back').on('click', () => {
-//   if (cc.session) {
-//     var goback = cc.progress - 1;
-//     if (goback <= 0) {
-//       goback = 0;
-//     }
-//     cc.seek(goback)
-//   }
-// })
-
-// var slider = $('input[type="range"]').rangeslider({
-//   polyfill: false,
-//   onSlideEnd: function(pos, val) {
-//     if (cc.session) {
-//       cc.seek(val, true);
-//     }
-//   }
-// });
-
 $('.vjs-progress-control').on('mouseup', () => {
   if (cc.session) {
     // cc.pause();
     cc.seek(player2.currentTime(), false);
   }
-})
+});
 
 $('.vjs-volume-control').on('mouseup', () => {
   if (cc.session) {
     cc.volume(player2.volume());
   }
-})
+});
+
+player2.on("pause", function () {
+  cc.pause();
+});
+
+player2.on("play", function () {
+  cc.play();
+});
+
+$(".pitchControl").click(function(){
+    let trackIndex = $('.vocal').attr('index-track');
+    let pitchValue = $('#pitchValue').attr('pitch-value');
+    let pitchMethod = $(this).attr('pitch-method');
+
+    let pitchValueChange = 0;
+    if(pitchMethod === "minus"){
+        pitchValueChange = parseInt(pitchValue)-1;
+    } else {
+        pitchValueChange = parseInt(pitchValue)+1;
+    }
+
+    if(pitchValueChange == 4 || pitchValueChange == -4){
+        return false;
+    }
+
+    if(trackIndex == "2"){
+        if(pitchValueChange == 0){
+            pitchIndex = 1;
+        }
+        else if(pitchValueChange == "1"){
+            pitchIndex = 6;
+        }
+        else if(pitchValueChange == "2"){
+            pitchIndex = 7;
+        }
+        else if(pitchValueChange == "3"){
+            pitchIndex = 8;
+        }
+        else if(pitchValueChange == "-1"){
+            pitchIndex = 5;
+        }
+        else if(pitchValueChange == "-2"){
+            pitchIndex = 4;
+        }
+        else if(pitchValueChange == "-3"){
+            pitchIndex = 3;
+        }
+    } else {
+        if(pitchValueChange == 0){
+            pitchIndex = 2;
+        }
+        else if(pitchValueChange == "1"){
+            pitchIndex = 12;
+        }
+        else if(pitchValueChange == "2"){
+            pitchIndex = 13;
+        }
+        else if(pitchValueChange == "3"){
+            pitchIndex = 14;
+        }
+        else if(pitchValueChange == "-1"){
+            pitchIndex = 11;
+        }
+        else if(pitchValueChange == "-2"){
+            pitchIndex = 10;
+        }
+        else if(pitchValueChange == "-3"){
+            pitchIndex = 9;
+        }
+    }
+
+    $('#pitchValue').text(pitchValueChange);
+    $('#pitchValue').attr('pitch-value', pitchValueChange);
+
+    if (cc.session) {
+        cc.subtitle(pitchIndex);
+    }
+});

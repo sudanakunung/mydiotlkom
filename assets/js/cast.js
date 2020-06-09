@@ -249,6 +249,7 @@ class Castjs {
           track.type              = chrome.cast.media.TrackType.TEXT;
           tracks.push(track);
         }
+
         mediaInfo.tracks = tracks;
       }
 
@@ -299,18 +300,20 @@ class Castjs {
         
         this.trigger('session');
 
-        reset_player();
-
+        reset_player(this.time);
+        
         // $('.button-pause').removeClass('hide');
         // $('.button-pause').show();
-
+        
         return this;
       }, (err) => {
         this.trigger('error', err);
+        console.log(err);
         return this;
       })
     }, (err) => {
-      this.trigger('error', err)
+      this.trigger('error', err);
+      console.log(err);
       return this;
     })
   };
@@ -320,6 +323,7 @@ class Castjs {
     if (percentage) {
       seconds = this.controller.getSeekTime(seconds, this.player.duration);
     }
+
     this.player.currentTime = seconds;
     this.controller.seek();
 
@@ -373,9 +377,13 @@ class Castjs {
           this.subtitles[i].active = true;
         }
       }
+
+      player2.currentTime(this.time);
+
       return this;
     }, (err) => {
-      this.trigger('error', err)
+      this.trigger('error', err);
+      console.log(err);
     });
   };
 

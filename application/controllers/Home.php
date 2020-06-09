@@ -51,6 +51,20 @@ class Home extends CI_Controller {
 
 		$data['banner_slider'] = json_decode($dataBannerSlider, true);
 
+		if (!$this->session->has_userdata('memberLogin')) {
+			$data['like_exist'] = 0;
+		} else {
+			$this->db->where('user_id', $this->session->userdata('userId'));
+			$this->db->or_where('ip_address', $this->input->ip_address());
+			$cekUserExist = $this->db->get('video_like')->num_rows();
+
+			if($cekUserExist > 0){
+				$data['like_exist'] = 1;
+			} else {
+				$data['like_exist'] = 0;
+			}
+		}
+
 		$this->load->view('index', $data);
 	}
 
@@ -261,6 +275,7 @@ class Home extends CI_Controller {
 				# code...
 				break;
 		}
+
 		$this->load->library('mydio');
 		$recomeded = array(
 			'type' => $type,
@@ -268,7 +283,9 @@ class Home extends CI_Controller {
 			'offset' => 0,
 			'limit' => 10
 		);
+
 		$recomended = $this->mydio->qsong($recomeded);
+		
 		$html = '';
 		foreach ($recomended['array'] as $key => $value){
 			// $hide = '';
@@ -283,7 +300,7 @@ class Home extends CI_Controller {
 			}
 
 			$html .= '
-			<div class="row py-2" onClick="mydiolimit(\''.$value['urlHls'].'\', \''.$value['title'].'\', \''.$value['artist'].'\', \''.$value['poster'].'\')" '.$border.'>
+			<div class="row py-2" onClick="mydiolimit(\''.$value['urlHls'].'\', \''.$value['title'].'\', \''.$value['artist'].'\', \''.$value['poster'].'\', \''.$value['song'].'\', \''.$value['songId'].'\')" '.$border.'>
                 <div class="col-4">
                     <div style="width: 100%; height: 76px; background-image: url(\''.$value['poster'].'\'); background-position: top; background-size: cover; background-repeat: no-repeat; border-radius: 5px;">
                         <img class="play-icon" src="'.base_url('assets/images/play_video.png').'">
@@ -577,8 +594,7 @@ class Home extends CI_Controller {
 				$value['poster'] = base_url('uploads/default.png');
 			}
             $html.= '
-            <div class="col-md-3 col-6 border-carafie" onClick="
-                                mydiolimit(\''.$value['urlHls'].'\', \''.$value['title'].'\', \''.$value['artist'].'\')" data-url="'.$value['urlHls'].'" data-title="'.$value['title'].'" data-artis="'.$value['artist'].'">
+            <div class="col-md-3 col-6 border-carafie" onClick="mydiolimit(\''.$value['urlHls'].'\', \''.$value['title'].'\', \''.$value['artist'].'\')" data-url="'.$value['urlHls'].'" data-title="'.$value['title'].'" data-artis="'.$value['artist'].'">
                 <div class="row">
                     <div class="col-md-12 no-padding">
                         <div class="dummy"></div>
@@ -710,6 +726,48 @@ class Home extends CI_Controller {
 		ob_end_flush();
 		readfile($file_path);
 		return true;
+	}
+
+	public function likevideo(){
+		if ($this->input->post('loginStatus') == 0){
+			$this->db->where('ip_address', $this->input->post('userId'));
+		} else {
+			$this->db->where('user_id', $this->$this->session->userdata('userId'));
+		}
+
+		$this->db->where('video_id', $this->input->post('videoId'));
+		$checkUser = $this->db->get('video_like')->num_rows();
+
+		if($checkUser < 1){
+
+			if ($this->input->post('loginStatus') == 0){
+				$fielduser = "ip_address";
+			} else {
+				$fielduser = "user_id";
+			}
+
+			$data = array(
+			    'video_id' => $this->input->post('videoId'),
+			    ''.$fielduser.'' => $this->input->post('userId'),
+			    'created_at' => date('Y-m-d H:i:s')
+			);
+
+			$this->db->insert('video_like', $data);
+
+			$status = 200;
+			$message = 'Video successfully liked';
+		} else {
+			$status = 400;
+			$message = 'An Error Has Occurred With Your Internet Connection';
+		}
+
+		$return = [
+			'status' => $status,
+			'message' => $message
+		];
+
+		header('Content-Type: application/json');
+    	echo json_encode($return);
 	}
 }
 /* End of file Home.php */

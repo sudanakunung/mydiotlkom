@@ -68,4 +68,16 @@ class M_Users extends CI_Model {
 		$this->db->where('id', $userid);
 		$this->db->update('users', $data);
 	}
+
+	public function logActivity($userid)
+	{
+		$data = [
+			'log_activity' => $this->input->post('update mood', true),
+			'description' => $this->input->post('my_mood', true),
+			'user_id' => $userid,
+			'created_at' => date('Y-m-d H:i:s')
+		];
+
+		$this->db->insert('user_log_activity', $data);
+	}
 }
