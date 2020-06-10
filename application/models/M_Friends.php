@@ -68,6 +68,16 @@ class M_Friends extends CI_Model {
 		$this->db->where('user_id', $data['user_id']);
 		$this->db->where('following_user_id', $data['friend_id']);
 		$this->db->delete('follow_friends');
+	}
 
+	public function storeLikeFeed(){
+		
+		$data = array(
+	        "feed_id" => $this->input->post('feedID'),
+			"user_id" => $this->session->userdata('userId'),
+			"created_at" => date('Y-m-d H:i:s')
+		);
+
+		return $this->db->insert('feed_likes', $data);
 	}
 }

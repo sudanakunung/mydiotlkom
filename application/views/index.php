@@ -75,6 +75,183 @@ body {
     z-index: 1;
 }
 
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(12, 5vw);
+}
+
+.gallery2 {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(6, 5vw);
+}
+
+.gallery3 {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(12, 5vw);
+}
+
+.gallery,
+.gallery2,
+.gallery3 {
+    grid-gap: .2rem; 
+    margin-bottom: .2rem; 
+}
+
+.gallery__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 0;
+    display: block; 
+}
+
+.gallery__item--1 {
+    grid-column-start: 1;
+    grid-column-end: 9;
+    grid-row-start: 1;
+    grid-row-end: 13;
+}
+
+.gallery__item--2 {
+    grid-column-start: 9;
+    grid-column-end: 13;
+    grid-row-start: 1;
+    grid-row-end: 7;
+}
+
+.gallery__item--3 {
+    grid-column-start: 9;
+    grid-column-end: 13;
+    grid-row-start: 7;
+    grid-row-end: 13;
+}
+
+.gallery2__item--1 {
+    grid-column-start: 1;
+    grid-column-end: 5;
+    grid-row-start: 1;
+    grid-row-end: 7;
+}
+
+.gallery2__item--2 {
+    grid-column-start: 5;
+    grid-column-end: 9;
+    grid-row-start: 1;
+    grid-row-end: 7;
+}
+
+.gallery2__item--3 {
+    grid-column-start: 9;
+    grid-column-end: 13;
+    grid-row-start: 1;
+    grid-row-end: 7;
+}
+
+.gallery3__item--1 {
+    grid-column-start: 1;
+    grid-column-end: 5;
+    grid-row-start: 1;
+    grid-row-end: 7;
+}
+
+.gallery3__item--2 {
+    grid-column-start: 1;
+    grid-column-end: 5;
+    grid-row-start: 7;
+    grid-row-end: 13;
+}
+
+.gallery3__item--3 {
+    grid-column-start: 5;
+    grid-column-end: 13;
+    grid-row-start: 1;
+    grid-row-end: 13;
+}
+
+.gallery__icon--1{
+    grid-column-start: 8;
+    grid-column-end: 9;
+    grid-row-start: 1;
+    grid-row-end: 2;
+}
+
+.gallery__icon--2{
+    grid-column-start: 12;
+    grid-column-end: 13;
+    grid-row-start: 1;
+    grid-row-end: 2;
+}
+
+.gallery__icon--3{
+    grid-column-start: 12;
+    grid-column-end: 13;
+    grid-row-start: 7;
+    grid-row-end: 8;
+}
+
+.gallery2__icon--1{
+    grid-column-start: 4;
+    grid-column-end: 5;
+    grid-row-start: 1;
+    grid-row-end: 2;
+}
+
+.gallery2__icon--2{
+    grid-column-start: 8;
+    grid-column-end: 9;
+    grid-row-start: 1;
+    grid-row-end: 2;
+}
+
+.gallery2__icon--3{
+    grid-column-start: 12;
+    grid-column-end: 13;
+    grid-row-start: 1;
+    grid-row-end: 2;
+}
+
+.gallery3__icon--1{
+    grid-column-start: 4;
+    grid-column-end: 5;
+    grid-row-start: 1;
+    grid-row-end: 2;
+}
+
+.gallery3__icon--2{
+    grid-column-start: 4;
+    grid-column-end: 5;
+    grid-row-start: 7;
+    grid-row-end: 8;
+}
+
+.gallery3__icon--3{
+    grid-column-start: 12;
+    grid-column-end: 13;
+    grid-row-start: 1;
+    grid-row-end: 2;
+}
+
+.gallery__icon--1,
+.gallery__icon--2,
+.gallery__icon--3,
+.gallery2__icon--1,
+.gallery2__icon--2,
+.gallery2__icon--3,
+.gallery3__icon--1,
+.gallery3__icon--2,
+.gallery3__icon--3{
+    padding-top: 15%;
+}
+
+.gallery figure,
+.gallery2 figure,
+.gallery3 figure {
+    margin: 0;
+}
+
 @media only screen and (max-width: 768px) {
     /* For mobile phones: */
     body {
@@ -374,11 +551,25 @@ body {
 
             <div class="tab-content" id="nav-tabContent">
                 <div class="tab-pane fade show active" id="nav-karafie" role="tabpanel" aria-labelledby="nav-karafie-tab">
-                    <div class="row mt-1 p-0 lazy" data-loader="ajax" data-src="<?php echo site_url('lazy/karafie');?>">
+                    <div class="container">
+                        <div class="row mt-1">
+                            <div 
+                                class="col-12 p-0 lazy" 
+                                data-loader="ajax" 
+                                data-src="<?php echo site_url('lazy/karafie');?>
+                            "></div>
+                        </div>
                     </div>
                 </div>
                 <div class="tab-pane fade" id="nav-karaclip" role="tabpanel" aria-labelledby="nav-karaclip-tab">
-                    <div class="row mt-1 p-0 lazy" data-loader="ajax" data-src="<?php echo site_url('lazy/karaclip');?>">
+                    <div class="container">
+                        <div class="row mt-1">
+                            <div 
+                                class="col-12 p-0 lazy" 
+                                data-loader="ajax" 
+                                data-src="<?php echo site_url('lazy/karaclip');?>
+                            "></div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -294,6 +294,6 @@ class Login extends CI_Controller {
 		$this->session->unset_userdata('userId');
 
 		$this->session->sess_destroy();
-        redirect('login');
+        redirect('/');
 	}
 }

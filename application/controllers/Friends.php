@@ -23,9 +23,10 @@ class Friends extends CI_Controller {
 		
 		$friendsActivity = $this->friends->getLogActivity($this->session->userdata('userId'));
 
-		$navbar_back = true;
+		$show_menu = true;
+		$custom_title = true;
 		$title = 'Friends';
-		$this->load->view('header', compact('navbar_back','title'));
+		$this->load->view('header', compact('show_menu','custom_title','title'));
 		$this->load->view('friends');
 		$this->load->view('footer');
 	}
@@ -58,7 +59,7 @@ class Friends extends CI_Controller {
 			"user_id" => $this->session->userdata('userId'),
 		];
 		
-		$count_followers = $this->friends->storeFollowFriend($data);
+		$this->friends->storeFollowFriend($data);
 
 		$return = [
 			"status" => 200,
@@ -83,6 +84,27 @@ class Friends extends CI_Controller {
 			"status" => 200,
 			"message" => "Successfully unfollowed",
 			"status_follow" => 0
+		];
+
+		header('Content-Type: application/json');
+    	echo json_encode($return);
+	}
+
+	public function store_feed_like(){
+		
+		$store = $this->friends->storeLikeFeed();
+
+		if($store){
+			$status = 200;
+			$message = "Successfully liked";
+		} else {
+			$status = 400;
+			$message = "Unsuccessfully liked";
+		}
+
+		$return = [
+			"status" => $status,
+			"message" => $message
 		];
 
 		header('Content-Type: application/json');

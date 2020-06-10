@@ -589,11 +589,11 @@ $(document).ready(function() {
 <script src="<?=base_url('assets'); ?>/js/cast.js"></script>
 <script src="<?=base_url('assets'); ?>/js/main.js" crossorigin="anonymous"></script>
 
-<script src="<?= base_url(); ?>/upup.min.js"></script>
+<script src="<?= base_url(); ?>upup.min.js"></script>
 <script>
 UpUp.start({
   // 'content-url': 'offline.html', // Halaman offline belum dibuatkan.
-  'assets': ['<?= base_url('/'); ?>assets/images/logo_md_box.png'],
+  'assets': ['<?= base_url(); ?>assets/images/logo_md_box.png'],
   'service-worker-url': '<?= base_url(); ?>upup.sw.min.js'
 });
 </script>

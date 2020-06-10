@@ -31,7 +31,7 @@
     <!-- END Pre-requisites -->
     <link rel="manifest" href="<?= base_url('/'); ?>manifest.json">
     <title>
-        <?php echo (isset($title)) ? $title : 'MYDIO Sing'; ?>
+        <?php echo (isset($title) || isset($custom_title)) ? $title : 'MYDIO Sing'; ?>
     </title>
     <!-- assets -->
     <link href="https://fonts.googleapis.com/css?family=Heebo" rel="stylesheet">
@@ -195,34 +195,52 @@
           <nav class="navbar navbar-dark" style="display: block; padding: 8px 0px; background: rgb(44,103,203); background: linear-gradient(90deg, rgba(44,103,203,1) 0%, rgba(24,15,72,1) 100%);">
               
               <?php
-              if(!isset($navbar_back)){ ?>
+              if(!isset($navbar_back) || isset($show_menu)){ ?>
                   <button class="navbar-toggler js-offcanvas-trigger" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" data-offcanvas-trigger="off-canvas" style="border-color: transparent !important;">
                       <!-- <span class="navbar-toggler-icon"></span> -->
                       <img src="<?= base_url('assets/images/menu.png'); ?>" class="img-fluid" style="height: 30px; width: auto;">
+                      <?php 
+                      if(isset($custom_title)){ ?>
+                        &nbsp;<span class="text-white align-middle" style="font-size: 18px;"><?= $title; ?></span>
+                      <?php
+                      }
+                      ?>
                   </button>
 
-                  <div class="input-group search-box">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text search-icon" id="basic-addon1">
-                        <i class="fa fa-search" aria-hidden="true"></i>
-                      </span>
+                  <?php
+                  if(!isset($show_menu)){ ?>
+                    <div class="input-group search-box">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text search-icon" id="basic-addon1">
+                          <i class="fa fa-search" aria-hidden="true"></i>
+                        </span>
+                      </div>
+                      
+                      <!-- <input onclick="window.location = '<?= base_url('song-by-search') ?>';" type="text" class="form-control search" placeholder="Search Artist or Song's Title..." aria-describedby="basic-addon1" readonly="true" style="background: transparent;"> -->
+
+                      <input id="search-input" type="text" class="form-control search" placeholder="Search Artist or Song's Title..." aria-describedby="basic-addon1" style="background: transparent; color: white;" yang-dicari="song" autocomplete="off">
                     </div>
-                    
-                    <!-- <input onclick="window.location = '<?= base_url('song-by-search') ?>';" type="text" class="form-control search" placeholder="Search Artist or Song's Title..." aria-describedby="basic-addon1" readonly="true" style="background: transparent;"> -->
 
-                    <input id="search-input" type="text" class="form-control search" placeholder="Search Artist or Song's Title..." aria-describedby="basic-addon1" style="background: transparent; color: white;" yang-dicari="song" autocomplete="off">
-
-                  </div>
-
-                  <div class="kategori-chat">
-                    <a href="<?= base_url('song-by-category'); ?>">
-                      <img class="mr-2" src="<?= base_url('assets/images/kategori.png'); ?>" style="height: 25px; width: auto;">
-                    </a>
-                    <a href="<?= base_url('messenger'); ?>">
-                      <span id="notifchat" style="display: none;"></span>
-                      <img src="<?= base_url('assets/images/chat.png'); ?>" style="height: 25px; width: auto;">
-                    </a>
-                  </div>
+                    <div class="kategori-chat">
+                      <a href="<?= base_url('song-by-category'); ?>">
+                        <img class="mr-2" src="<?= base_url('assets/images/kategori.png'); ?>" style="height: 25px; width: auto;">
+                      </a>
+                      <a href="<?= base_url('messenger'); ?>">
+                        <span id="notifchat" style="display: none;"></span>
+                        <img src="<?= base_url('assets/images/chat.png'); ?>" style="height: 25px; width: auto;">
+                      </a>
+                    </div>
+                  <?php
+                  } else { ?>
+                    <div class="kategori-chat" style="text-align: right; padding-right: 10px;">
+                      <a href="<?= base_url('messenger'); ?>">
+                        <span id="notifchat" style="display: none;"></span>
+                        <img src="<?= base_url('assets/images/chat.png'); ?>" style="height: 25px; width: auto;">
+                      </a>
+                    </div>
+                  <?php
+                  }
+                  ?>
 
               <?php
               } else { ?>
@@ -234,12 +252,6 @@
               <?php
               }
               ?>
-
-              <!-- <a class="navbar-brand logo-place" href="<?php echo site_url(''.$url);?>"><img src="<?php echo base_url('home/images/logo-nav.png');?>"></a> -->
-              
-              <div class="search-sign" style="display: inline-flex;">
-                  <!-- <div id="ytWidget"></div> -->
-              </div>
               
               <div class="collapse navbar-collapse d-none" id="navbarCollapse">
                   <!-- 

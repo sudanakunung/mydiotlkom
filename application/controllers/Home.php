@@ -149,32 +149,6 @@ class Home extends CI_Controller {
 		echo $html;
 	}
 
-	public function lazyClip()
-	{
-		$this->load->library('mydio');
-		$type = $this->uri->segment(2);
-		$param = array(
-			'type' => $type,
-			'query' => '',
-			'offset' => 0,
-			'limit' => 5
-		);
-		$record = $this->mydio->song($param);
-		$html = '';
-		foreach ($record['array'] as $key => $value) {
-			$hide = '';
-			if ($key == 4) {
-				$hide = 'hide';
-			}
-			$html.='
-			<div class="col-4" style="padding: 1px;">
-	            <img  style="width: 100%; height: 100px;" onClick="onClick="mydioclip(\''.$value['urlM3U8'].'\', \''.$value['title'].'\', \''.$value['recordingId'].'\')" src="'.$value['urlPoster'].'">
-	            <i class="fa fa-video-camera text-white" aria-hidden="true" style="position: absolute; right: 10px; top: 5px;"></i>
-            </div>';
-		}
-		echo $html;
-	}
-
 	public function video()
 	{
 		$this->load->library('mydio');
@@ -219,40 +193,130 @@ class Home extends CI_Controller {
 			'type' => $type,
 			'query' => '',
 			'offset' => 0,
-			'limit' => 12
+			'limit' => 15
 		);
 		
 		$record = $this->mydio->song($param);
 		
+		$break_after = 3;
+		$break_after_second = 9;
+		$counter = 0;
+		$html = '';
+		foreach ($record['array'] as $key => $value) {
+			
+			// $hide = '';
+			// if ($key == 4) {
+			// 	$hide = 'hide';
+			// }
+
+			// if ($counter % $break_after == 0) {
+				
+			// 	if ($counter % $break_after_second) {
+			// 		$html.='<div class="row b">';
+			// 	} else {
+			// 		$html.='<div class="row a">';
+			// 	}
+			// }
+
+		 	if ($counter % $break_after == 0) {
+				if ($counter == 0) {
+					$class_item = "gallery";
+			        $html.='<div class="gallery">';
+			    } else {
+			    	if ($counter % $break_after_second == 0) {
+			    		$class_item = "gallery3";
+			    		$html.='<div class="gallery3">';
+			    	} else {
+			    		$class_item = "gallery2";
+			    		$html.='<div class="gallery2">';
+			    	}
+			    }
+			}
+
+			$number = ($counter % $break_after) + 1;
+			    
+            $html .='
+        	<figure class="'.$class_item.'__item--'.$number.'" onClick="mydiosingplay(\''.$value['urlM3U8'].'\', \''.$value['title'].'\')">
+                <img src="'.$value['urlPoster'].'" class="gallery__img">
+            </figure>
+            <p class="'.$class_item.'__icon--'.$number.'">
+            	<i class="fa fa-video-camera text-white" aria-hidden="true"></i>
+            </p>
+            ';
+
+			if ($counter % $break_after == ($break_after-1)) {
+		        $html.='</div>';
+		    }
+
+		    ++$counter;
+		}
+
+		if ((($counter-1) % $break_after) != ($break_after-1)) {
+		    $html.='</div>';
+		}
+
+		echo $html;
+	}
+
+	public function lazyClip()
+	{
+		$this->load->library('mydio');
+		$type = $this->uri->segment(2);
+
+		$param = array(
+			'type' => $type,
+			'query' => '',
+			'offset' => 0,
+			'limit' => 15
+		);
+
+		$record = $this->mydio->song($param);
+		
+		$break_after = 3;
+		$break_after_second = 9;
+		$counter = 0;
 		$html = '';
 		foreach ($record['array'] as $key => $value) {
 			// $hide = '';
 			// if ($key == 4) {
 			// 	$hide = 'hide';
 			// }
+			
+            if ($counter % $break_after == 0) {
+				if ($counter == 0) {
+					$class_item = "gallery";
+			        $html.='<div class="gallery">';
+			    } else {
+			    	if ($counter % $break_after_second == 0) {
+			    		$class_item = "gallery3";
+			    		$html.='<div class="gallery3">';
+			    	} else {
+			    		$class_item = "gallery2";
+			    		$html.='<div class="gallery2">';
+			    	}
+			    }
+			}
 
-			$html.='
-			<div class="col-4" style="padding: 1px;">
-	            <img  style="width: 100%;" onClick="mydiosingplay(\''.$value['urlM3U8'].'\', \''.$value['title'].'\')" src="'.$value['urlPoster'].'">
-	            <i class="fa fa-video-camera text-white" aria-hidden="true" style="position: absolute; position: absolute; right: 10px; top: 5px;"></i>
-            </div>';
+			$number = ($counter % $break_after) + 1;
+			    
+            $html .='
+        	<figure class="'.$class_item.'__item--'.$number.'" onClick="mydioclip(\''.$value['urlM3U8'].'\', \''.$value['title'].'\', \''.$value['recordingId'].'\')">
+                <img src="'.$value['urlPoster'].'" class="gallery__img">
+            </figure>
+            <p class="'.$class_item.'__icon--'.$number.'">
+            	<i class="fa fa-video-camera text-white" aria-hidden="true"></i>
+            </p>
+            ';
 
-			// $html.='
-			// <div class="col-md-3 col-6 border-carafie '.$hide.'" onClick="mydiosingplay(\''.$value['urlM3U8'].'\', \''.$value['title'].'\')">
-   			// <div class="row">
-			// <div class="col-md-12 no-padding">
-			// <div class="dummy"></div>
-			// <div class="in" style="background-image: url(\''.$value['urlPoster'].'\')">
-			// </div>
-			// </div>
-			// <div class="row margin-title">
-			// <div class="col-md-12">
-			// <p class="title">'.$value['title'].'</p>
-			// <span class="like"><i class="fa fa-eye"></i> '.$value['countListen'].'</span> <span class="like"><i class="fa fa-heart"></i> '.$value['countLike'].'</span>
-			// </div>
-			// </div>
-			// </div>
-			// </div>';
+			if ($counter % $break_after == ($break_after-1)) {
+		        $html.='</div>';
+		    }
+
+		    ++$counter;
+		}
+
+		if ((($counter-1) % $break_after) != ($break_after-1)) {
+		    $html.='</div>';
 		}
 
 		echo $html;
