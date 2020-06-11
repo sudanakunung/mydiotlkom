@@ -145,7 +145,7 @@ if(!isset($hide_navbar)){ ?>
                 </button>
             </div>
             <div class="modal-body">
-                <video id="example-video-2" class="video-js vjs-default-skin" controls>
+                <video id="example-video-2" class="video-js vjs-default-skin" controls playsinline>
                 </video>
                 
                 <div class="row justify-content-center mt-3">

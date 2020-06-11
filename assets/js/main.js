@@ -80,6 +80,7 @@ $(".vocal").on("click", (e) => {
     e.preventDefault();
 
     var index = $(".vocal").attr("index-track");
+    let pitchValue = $("#pitchValue").attr("pitch-value");
 
     if (cc.session) {
         cc.subtitle(index);
@@ -93,7 +94,23 @@ $(".vocal").on("click", (e) => {
     	var track = audioTrackList[i];
 
     	if (index == "1") {
-    		if (track.label === "eng") {
+    		if (pitchValue == "0") {
+		        trackLabel = "eng";
+		    } else if (pitchValue == "1") {
+		        trackLabel = "jpn";
+		    } else if (pitchValue == "2") {
+		        trackLabel = "kor";
+		    } else if (pitchValue == "3") {
+		        trackLabel = "lat";
+		    } else if (pitchValue == "-1") {
+		        trackLabel = "ind";
+		    } else if (pitchValue == "-2") {
+		        trackLabel = "heb";
+		    } else if (pitchValue == "-3") {
+		        trackLabel = "ger";
+		    }
+
+    		if (track.label === trackLabel) {
 		      	track.enabled = true;
 		      	$(".vocal").attr("index-track", "2");
         		$(".vocal-icon").attr("src", "./assets/images/vocal.jpg");
@@ -102,7 +119,24 @@ $(".vocal").on("click", (e) => {
 		    }		    
     	} 
     	else if (index == "2") {
-    		if (track.label === "fin") {
+
+    		if (pitchValue == "0") {
+		        trackLabel = "fin";
+		    } else if (pitchValue == "1") {
+		        trackLabel = "rus";
+		    } else if (pitchValue == "2") {
+		        trackLabel = "spa";
+		    } else if (pitchValue == "3") {
+		        trackLabel = "tha";
+		    } else if (pitchValue == "-1") {
+		        trackLabel = "por";
+		    } else if (pitchValue == "-2") {
+		        trackLabel = "nor";
+		    } else if (pitchValue == "-3") {
+		        trackLabel = "mon";
+		    }    		
+
+    		if (track.label === trackLabel) {
 		      	track.enabled = true;
 		      	$(".vocal").attr("index-track", "1");
         		$(".vocal-icon").attr("src", "./assets/images/no_vocal.jpg");
@@ -112,7 +146,6 @@ $(".vocal").on("click", (e) => {
     	}
   	}
 });
-
 
 $(".vjs-mute-control").on("click", () => {
     var player2_isVolumeMuted = player2.muted();
@@ -164,7 +197,7 @@ $(".pitchControl").click(function () {
     }
 
     if (trackIndex == "2") {
-        if (pitchValueChange == 0) {
+        if (pitchValueChange == "0") {
             pitchIndex = 1;
             trackId = "eng";
         } else if (pitchValueChange == "1") {
@@ -187,7 +220,7 @@ $(".pitchControl").click(function () {
             trackId = "ger";
         }
     } else {
-        if (pitchValueChange == 0) {
+        if (pitchValueChange == "0") {
             pitchIndex = 2;
             trackId = "fin";
         } else if (pitchValueChange == "1") {
