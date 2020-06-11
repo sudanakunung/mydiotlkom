@@ -377,7 +377,6 @@ $(document).ready(function() {
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-overlay/1.1.4/videojs-overlay.min.js"></script>
-<!-- <script src="https://translate.yandex.net/website-widget/v1/widget.js?widgetId=ytWidget&pageLang=id&widgetTheme=dark&autoMode=false" type="text/javascript"></script> -->
 
 <script>
     $(document).ready(function(){
@@ -456,26 +455,17 @@ $(document).ready(function() {
 
         return false;
     }
-
-    //var player2_btn_cast = player2.controlBar.addChild("button");
-    //var player2_btn_cast_dom = player2_btn_cast.el();
-    //player2_btn_cast_dom.className = 'button-cast';
-    //player2_btn_cast_dom.innerHTML = '<span class="material-icons">cast_connected</span>';
-    //player2_btn_cast_dom.onclick = function(){
-        //cast(''+song_player2+'', ''+songtitle_player2+'', ''+artist_player2+'', ''+poster_player2+'');
-    //}
     
     $(".cast").click(function(e){
-
         e.preventDefault();
 
         let status = $(this).attr('cast-status');
 
-        if(status == "on"){
-            cc.disconnect();
+        if(status == "on") {
+                cc.disconnect();
         } else {
             cast(''+song_player2+'', ''+songtitle_player2+'', ''+artist_player2+'', ''+poster_player2+'');
-        }        
+        }
     });
 
     <?php 
@@ -483,30 +473,29 @@ $(document).ready(function() {
 
     if(!$data_subscribtion){ ?>
         player2.on('timeupdate',  function(event) {
-        event.preventDefault();
-        
-        if (this.currentTime() >= 60) {
+            event.preventDefault();
+            
+            if (this.currentTime() >= 60) {
 
-            if (cc.session) {
-                cc.disconnect();
+                if (cc.session) {
+                    cc.disconnect();
+                }
+                //$('#exampleModal2').modal('hide');
+                player2.pause();
+                overlay_content = '<div><center><h2 class="text-video">For Full Video Please Download Our App</h2></center><a href="https://play.google.com/store/apps/details?id=com.mydiotech.mydiosingapp&hl=in&showAllReviews=true&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1"><img alt="Temukan di Google Play" src="<?php echo base_url('home/images/google-play-badge.png');?>" class="img-fluid app-download" /></a><a href="https://play.google.com/store/apps/details?id=com.mydiotech.mydiosingapp&hl=in&showAllReviews=true&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1" style="margin-left:10px;"><img alt="Temukan di Google Play" src="<?php echo base_url('home/images/app-store.png');?>" class="img-fluid app-download" /></a><div>';
+                    player2.overlay({
+                        overlays: [{
+                            start: 'pause',
+                            content: overlay_content,
+                            end: 'play',
+                            align: 'top'
+                        }]
+                    });
+
+                this.currentTime(0);
+
+                return;
             }
-            //$('#exampleModal2').modal('hide');
-            player2.pause();
-            overlay_content = '<div><center><h2 class="text-video">For Full Video Please Download Our App</h2></center><a href="https://play.google.com/store/apps/details?id=com.mydiotech.mydiosingapp&hl=in&showAllReviews=true&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1"><img alt="Temukan di Google Play" src="<?php echo base_url('home/images/google-play-badge.png');?>" class="img-fluid app-download" /></a><a href="https://play.google.com/store/apps/details?id=com.mydiotech.mydiosingapp&hl=in&showAllReviews=true&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1" style="margin-left:10px;"><img alt="Temukan di Google Play" src="<?php echo base_url('home/images/app-store.png');?>" class="img-fluid app-download" /></a><div>';
-                player2.overlay({
-                    overlays: [{
-                        start: 'pause',
-                        content: overlay_content,
-                        end: 'play',
-                        align: 'top'
-                    }]
-                });
-
-            this.currentTime(0);
-
-            return;
-        }
-        //console.log(this.currentTime());
         });
     <?php
     }

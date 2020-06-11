@@ -21,13 +21,13 @@ class Friends extends CI_Controller {
 			redirect('login','refresh');
 		}
 		
-		$friendsActivity = $this->friends->getLogActivity($this->session->userdata('userId'));
+		$friendFeeds = $this->friends->getLogActivity($this->session->userdata('userId'));
 
 		$show_menu = true;
 		$custom_title = true;
 		$title = 'Friends';
 		$this->load->view('header', compact('show_menu','custom_title','title'));
-		$this->load->view('friends');
+		$this->load->view('friends', compact('friendFeeds'));
 		$this->load->view('footer');
 	}
 
@@ -100,6 +100,27 @@ class Friends extends CI_Controller {
 		} else {
 			$status = 400;
 			$message = "Unsuccessfully liked";
+		}
+
+		$return = [
+			"status" => $status,
+			"message" => $message
+		];
+
+		header('Content-Type: application/json');
+    	echo json_encode($return);
+	}
+
+	public function delete_feed_like(){
+		
+		$delete = $this->friends->deleteLikeFeed();
+
+		if($delete){
+			$status = 200;
+			$message = "Successfully unliked";
+		} else {
+			$status = 400;
+			$message = "Unsuccessfully unliked";
 		}
 
 		$return = [

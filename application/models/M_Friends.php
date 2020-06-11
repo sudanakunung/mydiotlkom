@@ -6,9 +6,17 @@ class M_Friends extends CI_Model {
 
 	public function getLogActivity($userID)
 	{
-		$this->db->where('user_id', $userID);
-		$this->db->join('users', 'users.id = follow_friends.following_user_id');
-		$data = $this->db->get('follow_friends')->result();
+		$this->db->where('user_id', $userID);;
+		$friends = $this->db->get('follow_friends')->result();
+
+		$friend_ids = [];
+		foreach ($friends as $key => $value) {
+			$friend_ids[] = $value->following_user_id;
+		}
+
+		$this->db->where_in('user_id', $friend_ids, FALSE);
+		$this->db->join('users', 'users.id = user_feeds.user_id');
+		return $this->db->get('user_feeds')->result();
 	}
 
 	public function getUser($userID)
@@ -79,5 +87,13 @@ class M_Friends extends CI_Model {
 		);
 
 		return $this->db->insert('feed_likes', $data);
+	}
+
+	public function deleteLikeFeed(){
+
+		$this->db->where('feed_id', $this->input->post('feedID'));
+		$this->db->where('user_id', $this->session->userdata('userId'));
+		return $this->db->delete('feed_likes');
+
 	}
 }
