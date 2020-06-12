@@ -41,6 +41,7 @@
       rel="stylesheet">
     <link rel="stylesheet" href="<?php echo base_url('home/');?>css/js-offcanvas.css">
     <link href="https://vjs.zencdn.net/6.10.1/video-js.css" rel="stylesheet">
+    <link href="<?php echo base_url('assets'); ?>/css/videojs-stop-button.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/videojs-overlay/1.1.4/videojs-overlay.css">
     <link rel="stylesheet" href="<?php echo base_url('home/');?>css/index.css">
     <link rel="stylesheet" href="<?php echo base_url('home/');?>css/normalize.css">

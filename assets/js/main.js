@@ -85,7 +85,41 @@ $(".vocal").on("click", (e) => {
     let pitchValue = $("#pitchValue").attr("pitch-value");
 
     if (cc.session) {
-        cc.subtitle(index);
+    	if (index == "1") {
+	        if (pitchValue == "0") {
+	            pitchIndex = 1;
+	        } else if (pitchValue == "1") {
+	            pitchIndex = 6;
+	        } else if (pitchValue == "2") {
+	            pitchIndex = 7;
+	        } else if (pitchValue == "3") {
+	            pitchIndex = 8;
+	        } else if (pitchValue == "-1") {
+	            pitchIndex = 5;
+	        } else if (pitchValue == "-2") {
+	            pitchIndex = 4;
+	        } else if (pitchValue == "-3") {
+	            pitchIndex = 3;
+	        }
+	    } else {
+	        if (pitchValue == "0") {
+	            pitchIndex = 2;
+	        } else if (pitchValue == "1") {
+	            pitchIndex = 12;
+	        } else if (pitchValue == "2") {
+	            pitchIndex = 13;
+	        } else if (pitchValue == "3") {
+	            pitchIndex = 14;
+	        } else if (pitchValue == "-1") {
+	            pitchIndex = 11;
+	        } else if (pitchValue == "-2") {
+	            pitchIndex = 10;
+	        } else if (pitchValue == "-3") {
+	            pitchIndex = 9;
+	        }
+	    }
+
+        cc.subtitle(pitchIndex);
     }
 
     // Get the current player's AudioTrackList object.
@@ -162,12 +196,6 @@ $(".vjs-progress-control").on("mouseup", () => {
     if (cc.session) {
         // cc.pause();
         cc.seek(player2.currentTime(), false);
-    }
-});
-
-$(".vjs-volume-control").on("mouseup", () => {
-    if (cc.session) {
-        cc.volume(player2.volume());
     }
 });
 

@@ -291,7 +291,7 @@ function updateLikeNumber(getVideoID, number){
 
 $(".pitch").click(function(e){
     e.preventDefault();
-    
+
     let whenClicksPitch = $("#pitchBox").attr("triger-when-clicks");
 
     if(whenClicksPitch == "hide"){
@@ -354,6 +354,7 @@ $(document).ready(function() {
 <script src="<?php echo base_url('assets'); ?>/js/jquery.justified.min.js"></script>
 
 <script src="https://vjs.zencdn.net/6.10.1/video.js"></script>
+<script src="<?php echo base_url('assets'); ?>/js/videojs-stop-button.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-hls/5.14.1/videojs-contrib-hls.js"></script>
 
 <script>
@@ -413,6 +414,7 @@ $(document).ready(function() {
     }
 
     var player2 = videojs('example-video-2');
+    player2.stopButton();
     var url_player2 = '';
     var songtitle_player2 = '';
     var artist_player2 = '';
