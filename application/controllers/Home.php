@@ -51,19 +51,19 @@ class Home extends CI_Controller {
 
 		$data['banner_slider'] = json_decode($dataBannerSlider, true);
 
-		if (!$this->session->has_userdata('memberLogin')) {
-			$data['like_exist'] = 0;
-		} else {
-			$this->db->where('user_id', $this->session->userdata('userId'));
-			$this->db->or_where('ip_address', $this->input->ip_address());
-			$cekUserExist = $this->db->get('video_like')->num_rows();
+		// if (!$this->session->has_userdata('memberLogin')) {
+		// 	$data['like_exist'] = 0;
+		// } else {
+		// 	$this->db->where('user_id', $this->session->userdata('userId'));
+		// 	$this->db->or_where('ip_address', $this->input->ip_address());
+		// 	$cekUserExist = $this->db->get('video_like')->num_rows();
 
-			if($cekUserExist > 0){
-				$data['like_exist'] = 1;
-			} else {
-				$data['like_exist'] = 0;
-			}
-		}
+		// 	if($cekUserExist > 0){
+		// 		$data['like_exist'] = 1;
+		// 	} else {
+		// 		$data['like_exist'] = 0;
+		// 	}
+		// }
 
 		$this->load->view('index', $data);
 	}
@@ -363,6 +363,15 @@ class Home extends CI_Controller {
 				$border = '';
 			}
 
+			$this->db->where('video_id', $value['songId']);
+			$countLikeDatabase = $this->db->get('video_like')->num_rows();
+
+			if($countLikeDatabase > 0){
+				$likeNumber = ($value['like']+$countLikeDatabase);
+			} else {
+				$likeNumber = $value['like'];
+			}
+
 			$html .= '
 			<div class="row py-2" onClick="mydiolimit(\''.$value['urlHls'].'\', \''.$value['title'].'\', \''.$value['artist'].'\', \''.$value['poster'].'\', \''.$value['song'].'\', \''.$value['songId'].'\')" '.$border.'>
                 <div class="col-4">
@@ -386,7 +395,7 @@ class Home extends CI_Controller {
                         </div>
                         <div class="col-4 pr-0">
                             <span class="align-middle" style="font-size: 12px;">
-                                <img class="info-icon" src="'.base_url('assets/images/love.png').'">&nbsp;&nbsp;'.$value['like'].'
+                                <img class="info-icon" src="'.base_url('assets/images/love.png').'">&nbsp;&nbsp;<span id="like-'.$value['songId'].'">'.$likeNumber.'</span>
                             </span>
                         </div>
                         <div class="col-4 pr-0">
@@ -535,6 +544,7 @@ class Home extends CI_Controller {
 		$data['title'] = $data['berita']['judul'];
 		$this->load->view('detailnews', $data);
 	}
+	
 	public function sendEmail()
 	{
 		$this->load->library('form_validation');
@@ -569,6 +579,7 @@ class Home extends CI_Controller {
 			//echo $this->email->print_debugger();
 		}
 	}
+	
 	public function youtube()
 	{
 		$data['title'] = 'YouTube Video';
@@ -793,10 +804,10 @@ class Home extends CI_Controller {
 	}
 
 	public function likevideo(){
-		if ($this->input->post('loginStatus') == 0){
+		if ($this->session->has_userdata('memberLogin')) {
+			$this->db->where('user_id', $this->input->post('userId'));
+		} else {			
 			$this->db->where('ip_address', $this->input->post('userId'));
-		} else {
-			$this->db->where('user_id', $this->$this->session->userdata('userId'));
 		}
 
 		$this->db->where('video_id', $this->input->post('videoId'));
@@ -825,9 +836,38 @@ class Home extends CI_Controller {
 			$message = 'An Error Has Occurred With Your Internet Connection';
 		}
 
+		$this->db->where('video_id', $this->input->post('videoId'));
+		$countLikeDatabase = $this->db->get('video_like')->num_rows();
+
 		$return = [
 			'status' => $status,
-			'message' => $message
+			'message' => $message,
+			'likeFromDatabase' => $countLikeDatabase,
+		];
+
+		header('Content-Type: application/json');
+    	echo json_encode($return);
+	}
+
+	public function checkLikeVideo()
+	{
+		if ($this->input->post('loginStatus') == 0){
+			$this->db->where('ip_address', $this->input->ip_address());
+		} else {
+			$this->db->where('user_id', $this->$this->session->userdata('userId'));
+		}
+
+		$this->db->where('video_id', $this->input->post('videoID'));
+		$checkUser = $this->db->get('video_like')->num_rows();
+
+		if($checkUser > 0){
+			$exist = true;
+		} else {
+			$exist = false;
+		}
+
+		$return = [
+			'exist' => $exist
 		];
 
 		header('Content-Type: application/json');

@@ -252,6 +252,16 @@ body {
     margin: 0;
 }
 
+.overlay{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    background-color: rgba(0,0,0,0.5);
+}
+
 @media only screen and (max-width: 768px) {
     /* For mobile phones: */
     body {
@@ -328,16 +338,6 @@ body {
     .first.tab-content{
         margin-top: -9px;
     }
-}
-
-.overlay{
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 10;
-    background-color: rgba(0,0,0,0.5);
 }
 </style>
 

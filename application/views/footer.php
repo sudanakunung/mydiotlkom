@@ -131,7 +131,7 @@ if(!isset($hide_navbar)){ ?>
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" video-id="">
   <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -150,23 +150,8 @@ if(!isset($hide_navbar)){ ?>
                 
                 <div class="row justify-content-center mt-3">
                     <div class="col">
-                        <?php 
-                        if (isset($data)){
-                            if($data['like_exist'] == 1){
-                                $love_status = 1;
-                                $src_image = base_url('assets/images/love_blue.jpg');
-                            } else {
-                                $love_status = 0;
-                                $src_image = base_url('assets/images/love_white.jpg');
-                            }
-                        } else {
-                            $love_status = 0;
-                            $src_image = base_url('assets/images/love_white.jpg');
-                        }                
-                        ?>
-
-                        <a href="#" class="love" love-status="<?= $love_status; ?>" song-id="">
-                            <img src="<?= $src_image; ?>" class="img-fluid rounded love-icon">
+                        <a href="#" class="love" love-status="" song-id="">
+                            <img src="<?= base_url('assets/images/loading_player_button.gif'); ?>" class="img-fluid rounded love-icon">
                         </a>
                     </div>
                     <div class="col">
@@ -176,7 +161,7 @@ if(!isset($hide_navbar)){ ?>
                     </div>
                     <div class="col">
                         <a href="#" class="pitch">
-                            <img src="<?= base_url('assets/images/pitch.jpg'); ?>" class="img-fluid rounded">
+                            <img src="<?= base_url('assets/images/pitch.jpg'); ?>" class="img-fluid rounded pitch-icon">
                         </a>
                     </div>
 					<div class="col">
@@ -250,37 +235,44 @@ if(!isset($hide_navbar)){ ?>
 </div>
 
 <script type="text/javascript">
-$(".love").click(function(){
-    
+$(".love").on("click", function(e){
+    e.preventDefault();
+
+    $('.love-icon').attr("src", "<?= base_url('assets/images/loading_player_button.gif'); ?>");
+
+    <?php 
+    if ($this->session->has_userdata('memberLogin')) {
+        $userId = $this->session->userdata('userId');
+    } else {
+        $userId = $this->input->ip_address();
+    }
+    ?>
+
+    let userId = '<?= $userId; ?>';
+    let videoId = $(this).attr('song-id');
     let status = $(this).attr('love-status');
 
     if(status == "0"){
-        <?php 
-        if ($this->session->has_userdata('memberLogin')) {
-            $userId = $this->session->userdata('userId');
-        } else {
-            $userId = $this->input->ip_address();
-        }
-        ?>
-
-        let userId = '<?= $userId; ?>';
-        let videoId = $(this).attr('song-id');
-
         $.ajax({
             url: '<?php echo site_url('Home/likevideo'); ?>',
             type: 'POST',
             data: {
                 'userId': userId,
-                'videoId': videoId,
-                'loginStatus': status
+                'videoId': videoId
             },
         })
         .done(function(data) {
             
+            let currentLikeNumber = parseInt($("#like-"+videoId+"").text());
+            let databaseLikeNumber = data.likeFromDatabase;
+            let newLikeNumber =  (currentLikeNumber + databaseLikeNumber);
+
             if(data.status == 200){
-                $('.love').attr('love-status', '1');
-                $('.love-icon').attr('src', './assets/images/love_blue.png');
+                $('.love').attr("love-status", "1");
+                $('.love-icon').attr("src", "<?= base_url('assets/images/love_blue.jpg'); ?>");
             }
+
+            updateLikeNumber(videoId, newLikeNumber);
 
             alert(data.message);
         })
@@ -288,11 +280,18 @@ $(".love").click(function(){
             alert(data.message);
         })
     } else {
+        $('.love-icon').attr("src", "<?= base_url('assets/images/love_blue.jpg'); ?>");
         alert('This video have you ever liked');
     }
 });
 
-$(".pitch").click(function(){
+function updateLikeNumber(getVideoID, number){
+    $("span#like-"+getVideoID+"").html(number);
+}
+
+$(".pitch").click(function(e){
+    e.preventDefault();
+    
     let whenClicksPitch = $("#pitchBox").attr("triger-when-clicks");
 
     if(whenClicksPitch == "hide"){
@@ -432,6 +431,8 @@ $(document).ready(function() {
     }
 
     function mydiolimit(url, songtitle, artist, poster, song, songId) {
+        checkLikeVideo(songId);
+
         delete player2.overlay();
 
         song_player2 = song;
@@ -440,6 +441,7 @@ $(document).ready(function() {
         poster_player2 = poster;
 
         $('.love').attr('song-id', songId);
+        $('#exampleModal2').attr('video-id', songId);
         $('#exampleModal2').modal('show');
         $('#songtitlelimit').html(songtitle_player2);
         $('#songartist').html(artist_player2);
@@ -449,11 +451,36 @@ $(document).ready(function() {
 
         if (cc.session) {
             cc.disconnect();
-
             $(".cast").trigger('click');
         }
 
         return false;
+    }
+
+    function checkLikeVideo(videoID){
+
+        $('.love-icon').attr('src', './assets/images/loading_player_button.gif');
+        
+        $.ajax({
+            url: '<?= base_url('Home/checkLikeVideo'); ?>',
+            type: 'POST',
+            dataType: 'json',
+            data: { "videoID": videoID },
+        })
+        .done(function(data) {
+            if(data.exist){
+                $('.love').attr('love-status', '1');
+                $('.love-icon').attr('src', './assets/images/love_blue.jpg');
+            } else {
+                $('.love').attr('love-status', '0');
+                $('.love-icon').attr('src', './assets/images/love_white.jpg');
+            }
+        })
+        .fail(function() {
+            alert('An Error Has Occurred With Your Internet Connection');
+        });
+
+        return false
     }
     
     $(".cast").click(function(e){

@@ -456,7 +456,7 @@ $config['csrf_token_name'] = 'csrf_test_name';
 $config['csrf_cookie_name'] = 'csrf_cookie_name';
 $config['csrf_expire'] = 7200;
 $config['csrf_regenerate'] = TRUE;
-$config['csrf_exclude_uris'] = array('AdminPost/getPost', 'Video/getVideo', 'Home/karafie', 'Home/trending', 'Home/getNews/id','Home/getNews/en', 'Home/recordClip', 'record-clip', 'Home/lazySongs', 'Subscription/paypal_ipn', 'SearchSong/search_song', 'Messenger/storechat','Messenger/notifmessages','Messenger/notifchats','Messenger/ceknewchat','Messenger/updatereadnewchat','Messenger/uploadimage','ProfileMember/unfollow','ProfileMember/update','Home/likevideo','SearchSong/search_song_suggest','SearchFriend/search_friend_suggest','Friends/follow', 'Friends/unfollow','SearchFriend/search_friend','Friends/store_feed_like','Friends/delete_feed_like');
+$config['csrf_exclude_uris'] = array('AdminPost/getPost', 'Video/getVideo', 'Home/karafie', 'Home/trending', 'Home/getNews/id','Home/getNews/en', 'Home/recordClip', 'record-clip', 'Home/lazySongs', 'Subscription/paypal_ipn', 'SearchSong/search_song', 'Messenger/storechat','Messenger/notifmessages','Messenger/notifchats','Messenger/ceknewchat','Messenger/updatereadnewchat','Messenger/uploadimage','ProfileMember/unfollow','ProfileMember/update','Home/likevideo','SearchSong/search_song_suggest','SearchFriend/search_friend_suggest','Friends/follow', 'Friends/unfollow','SearchFriend/search_friend','Friends/store_feed_like','Friends/delete_feed_like','Home/checkLikeVideo');
 
 /*
 |--------------------------------------------------------------------------

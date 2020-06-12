@@ -79,12 +79,13 @@ function cast(url, songtitle, artist, poster, unsubscibe) {
 $(".vocal").on("click", (e) => {
     e.preventDefault();
 
+    $('.vocal-icon').attr("src", "./assets/images/loading_player_button.gif");
+
     var index = $(".vocal").attr("index-track");
     let pitchValue = $("#pitchValue").attr("pitch-value");
 
     if (cc.session) {
         cc.subtitle(index);
-        cc.seek(player2.currentTime(0), false);
     }
 
     // Get the current player's AudioTrackList object.
@@ -114,7 +115,6 @@ $(".vocal").on("click", (e) => {
 		      	track.enabled = true;
 		      	$(".vocal").attr("index-track", "2");
         		$(".vocal-icon").attr("src", "./assets/images/vocal.jpg");
-        		player2.currentTime(0);
 		      	return;	      	
 		    }		    
     	} 
@@ -139,8 +139,7 @@ $(".vocal").on("click", (e) => {
     		if (track.label === trackLabel) {
 		      	track.enabled = true;
 		      	$(".vocal").attr("index-track", "1");
-        		$(".vocal-icon").attr("src", "./assets/images/no_vocal.jpg");
-        		player2.currentTime(0);
+		      	$(".vocal-icon").attr("src", "./assets/images/no_vocal.jpg");
 		      	return;	      	
 		    }
     	}
@@ -180,7 +179,11 @@ player2.on("play", function () {
     cc.play();
 });
 
-$(".pitchControl").click(function () {
+$(".pitchControl").click(function (e) {
+	e.preventDefault();
+
+	$('.pitch-icon').attr("src", "./assets/images/loading_player_button.gif");
+
     let trackIndex = $(".vocal").attr("index-track");
     let pitchValue = $("#pitchValue").attr("pitch-value");
     let pitchMethod = $(this).attr("pitch-method");
@@ -249,7 +252,6 @@ $(".pitchControl").click(function () {
 
     if (cc.session) {
         cc.subtitle(pitchIndex);
-        cc.seek(player2.currentTime(0), false);
     }
 
     // Get the current player's AudioTrackList object.
@@ -260,7 +262,7 @@ $(".pitchControl").click(function () {
 
     	if (track.label === trackId) {
 	      	track.enabled = true;
-	      	player2.currentTime(0);
+	      	$('.pitch-icon').attr("src", "./assets/images/pitch.jpg");
 	      	return;	      	
 	    }
   	}
