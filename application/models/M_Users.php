@@ -57,7 +57,36 @@ class M_Users extends CI_Model {
 
 	public function updateProfile($userid)
 	{
-		$data = array(
+		if($this->input->post('my_mood', true)){
+			
+			$getDataUser = $this->db->get_where('users', ['id' => $this->session->userdata('userId')])->row_array();
+
+			if($getDataUser['my_mood'] != $this->input->post('my_mood', true)){
+
+				$data_insert_feeds = [
+					'user_id' => $this->session->userdata('userId'),
+					'description' => $this->input->post('my_mood', true),
+					'log_activity' => 'update mood',
+					'created_at' => date('Y-m-d H:i:s')
+				];
+
+				$this->db->insert('user_feeds', $data_insert_feeds);
+
+				$mood = [
+					"status" => "beda",
+					"mood_database" => $getDataUser['my_mood'],
+					"mood_post" => $this->input->post('my_mood', true),
+				];
+			} else {
+				$mood = [
+					"status" => "sama",
+					"mood_database" => $getDataUser['my_mood'],
+					"mood_post" => $this->input->post('my_mood', true),
+				];
+			}
+		}
+
+		$data_update = array(
 	        'name' => $this->input->post('name', true),
 	        'my_mood' => $this->input->post('my_mood', true),
 	        'birthday' => $this->input->post('birthday', true),
@@ -66,7 +95,16 @@ class M_Users extends CI_Model {
 		);
 
 		$this->db->where('id', $userid);
-		$this->db->update('users', $data);
+		$this->db->update('users', $data_update);
+
+		$data_insert_notification = [
+			'user_id' => $this->session->userdata('userId'),
+			'content' => 'Update profile data',
+			'type' => 'system',
+			'created_at' => date('Y-m-d H:i:s')
+		];
+
+		$this->db->insert('user_notifications', $data_insert_notification);
 	}
 
 	public function logActivity($userid)

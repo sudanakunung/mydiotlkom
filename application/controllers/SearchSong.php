@@ -10,45 +10,75 @@ class SearchSong extends CI_Controller {
 		
 		$this->load->helper('html');
 		$this->load->helper('string');
-		$this->load->library('curl'); 
+
+		$this->load->library('curl');
+		$this->client = new \GuzzleHttp\Client(['verify' => false, 'http_errors' => false]);
 		$this->url_api = 'https://dev.mydiosing.com/mydio';
 	}
 
 	public function index()
 	{
 		$keyword = $this->input->get('keyword');
+		// $limit = $this->input->get('limit');
+		// $start = $this->input->get('start');
+
+		// if($limit && $start){
+		// 	$limit = $limit;
+		// 	$start = $start;
+		// } else {
+		// 	$limit = 10;
+		// 	$start = 0;
+		// }
 		
-		$param = [
-			'type' => 'title',
-			'query' => $keyword,
-			'offset' => 0,
-			'limit' => 10,
-		];
+		// $param = [
+		// 	'type' => 'title',
+		// 	'query' => $keyword,
+		// 	'offset' => $start,
+		// 	'limit' => $limit,
+		// ];
 
-		$data = $this->curl->simple_get($this->url_api.'/QuerySong?'.http_build_query($param));
+		// $data = $this->curl->simple_get($this->url_api.'/QuerySong?'.http_build_query($param));
 
-		$respones = json_decode($data, true);
+		// $respones = json_decode($data, true);
 
 		$navbar_back = true;
 		$title = 'Back';
 		$this->load->view('header', compact('navbar_back','title'));
-		$this->load->view('search_songs', compact('respones','keyword'));
+		// $this->load->view('search_songs', compact('respones','keyword'));
+		$this->load->view('search_songs', compact('keyword'));
+		
+		$showScrollTop = true;
+		$this->load->view('footer', compact('showScrollTop'));
 	}
 
 	public function search_song()
 	{
+		$keyword = $this->input->get('keyword');
+		$limit = $this->input->get('limit');
+		$start = $this->input->get('start');
+		$ipAddress = $this->input->ip_address();
+
+		if($limit && $start){
+			$limit = $limit;
+			$start = $start;
+		} else {
+			$limit = 10;
+			$start = 0;
+		}
+
 		$param = [
 			'type' => 'title',
-			'query' => $this->input->post('keyword'),
-			'offset' => 0,
-			'limit' => 10,
+			'query' => $keyword,
+			'offset' => $start,
+			'limit' => $limit,
+			'remoteIpAddr' => $ipAddress,
 		];
 
 		$data = $this->curl->simple_get($this->url_api.'/QuerySong?'.http_build_query($param));
 
 		$respones = json_decode($data, true);
 
-		$html = '<p>Search result for you : </p>';
+		$html = '';
 
 		foreach ($respones['array'] as $value){
 
@@ -59,10 +89,10 @@ class SearchSong extends CI_Controller {
 			}
 
 			$html .= '
-			<div class="row py-2" onClick="mydiolimit(\''.$value['urlHls'].'\', \''.addslashes($value['title']).'\', \''.addslashes($value['artist']).'\', \''.$value['poster'].'\')" '.$border.'>
+			<div class="row py-2" onClick="mydiolimit(\''.$value['urlHls'].'\', \''.str_replace(array("\r\n","'"), array(" ","`"), $value['title']).'\', \''.$value['artist'].'\', \''.$value['poster'].'\', \''.$value['song'].'\', \''.$value['songId'].'\')" '.$border.'>
                 <div class="col-4">
                     <div style="width: 100%; height: 76px; background-image: url(\''.$value['poster'].'\'); background-position: top; background-size: cover; background-repeat: no-repeat; border-radius: 5px;">
-                        <img class="play-icon" src="'.base_url('assets/images/play_video.png').'">
+                        <img class="play-icon" src="'.base_url('assets/images/play_video.svg').'">
                     </div>
                 </div>
                 <div class="col-8 pl-0">
@@ -76,17 +106,17 @@ class SearchSong extends CI_Controller {
                     <div class="row" style="margin-top: 4px;">
                         <div class="col-4 pr-0">
                             <span class="align-middle" style="font-size: 12px;">
-                                <img class="info-icon" src="'.base_url('assets/images/view.png').'">&nbsp;&nbsp;'.$value['view'].'
+                                <img class="info-icon" src="'.base_url('assets/images/view.svg').'">&nbsp;&nbsp;'.$value['view'].'
                             </span>                                
                         </div>
                         <div class="col-4 pr-0">
                             <span class="align-middle" style="font-size: 12px;">
-                                <img class="info-icon" src="'.base_url('assets/images/love.png').'">&nbsp;&nbsp;'.$value['like'].'
+                                <img class="info-icon" src="'.base_url('assets/images/love.svg').'">&nbsp;&nbsp;'.$value['like'].'
                             </span>
                         </div>
                         <div class="col-4 pr-0">
                             <span class="align-middle" style="font-size: 12px;">
-                                <img class="info-icon" src="'.base_url('assets/images/record.png').'">&nbsp;&nbsp;'.$value['rec'].'
+                                <img class="info-icon" src="'.base_url('assets/images/record.svg').'">&nbsp;&nbsp;'.$value['rec'].'
                             </span>
                         </div>
                     </div>
@@ -95,12 +125,14 @@ class SearchSong extends CI_Controller {
 			';
         }
 
-        $return = [
-        	'html' => $html,
-        ];
+        echo $html;
 
-        header('Content-Type: application/json');
-    	echo json_encode($return);
+		// $return = [
+		// 	'html' => $html,
+		// ];
+
+		// header('Content-Type: application/json');
+		// echo json_encode($return);
 	}
 	
 	public function search_song_suggest()

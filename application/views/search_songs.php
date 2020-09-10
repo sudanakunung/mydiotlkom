@@ -43,14 +43,6 @@
 		line-height: 1.1; 
 		height: 40px;
 	}
-	.title{
-		font-size: 17px;
-		line-height: 1;
-	}
-	.artist{
-		font-size: 15px;
-		line-height: 1;
-	}
 	.info-icon{
 	    height: 17px;
 	}
@@ -106,82 +98,59 @@
     <div class="row pt-4">
     	<div class="overlay" style="display: none;"></div>
         <div class="col-12">
-        	<div class="content">
-        		<?php
-				if(isset($keyword)){
-					echo "
-					<p>Search result for you :</p>
-					";
-					
-					foreach ($respones['array'] as $key => $value){
-
-						if($key > 0){
-							$border = 'style="border-top: solid 1px #d8d8d8;"';
-						} else {
-							$border = '';
-						}
-						
-						echo '
-						<div class="row py-2" onClick="mydiolimit(\''.$value['urlHls'].'\', \''.addslashes($value['title']).'\', \''.addslashes($value['artist']).'\', \''.$value['poster'].'\')" '.$border.'>
-							<div class="col-4">
-								<div style="width: 100%; height: 76px; background-image: url(\''.$value['poster'].'\'); background-position: top; background-size: cover; background-repeat: no-repeat; border-radius: 5px;">
-									<img class="play-icon" src="'.base_url('assets/images/play_video.png').'">
-								</div>
-							</div>
-							<div class="col-8 pl-0">
-								<div class="row">
-									<div class="col-12 title-artist">
-										<span class="title"><b>'.$value['title'].'</b></span>
-										<br/>
-										<span class="artist">'.$value['artist'].'</span>
-									</div>
-								</div>
-								<div class="row" style="margin-top: 4px;">
-									<div class="col-4 pr-0">
-										<span class="align-middle" style="font-size: 12px;">
-											<img class="info-icon" src="'.base_url('assets/images/view.png').'">&nbsp;&nbsp;'.$value['view'].'
-										</span>                                
-									</div>
-									<div class="col-4 pr-0">
-										<span class="align-middle" style="font-size: 12px;">
-											<img class="info-icon" src="'.base_url('assets/images/love.png').'">&nbsp;&nbsp;'.$value['like'].'
-										</span>
-									</div>
-									<div class="col-4 pr-0">
-										<span class="align-middle" style="font-size: 12px;">
-											<img class="info-icon" src="'.base_url('assets/images/record.png').'">&nbsp;&nbsp;'.$value['rec'].'
-										</span>
-									</div>
-								</div>
-							</div>
-						</div>
-						';
-					}
-				} else {
-					foreach ($respones['array'] as $key => $value){
-
-						if($key > 0){
-							$border = 'style="border-top: solid 1px #d8d8d8;"';
-						} else {
-							$border = '';
-						}
-
-						echo "
-						<div class=\"row py-2\" onClick=\"mydiolimit('".$value['urlHls']."', '".addslashes($value['title'])."', '".addslashes($value['artist'])."', '".$value['poster']."')\" $border>
-							<div class=\"col-12\">
-								<span>".$value['title']."</span>
-								<br/>
-								<small>".$value['artist']."</small>
-							</div>	
-						</div>
-						";
-					}
-				}
-        		?>
-        	</div>
+        	<p>Search result for you :</p>
+        	
+        	<div id="content"></div>
+        	<div id="content-load-more"></div>
         </div>
     </div>
 </div>
+
+<script>
+    var limit = 40;
+    var start = 0;
+    var action = "inactive";
+    var keyword = "<?= $keyword; ?>";
+
+    function load_data(limit, start) {
+        $("#content-load-more").html('<div class="col-md-12 p-3"><center>Please Wait...</center></div>');
+
+        $.ajax({
+           	url: '<?= base_url('SearchSong/search_song'); ?>?keyword='+keyword+'&limit='+limit+'&start='+start+'',
+           	method: "GET",
+           	cache: false,
+            success: function (data) {
+                $("#content").append(data);
+                if (data == "") {
+                    action = "active";
+                } else {
+                    action = "inactive";
+                }
+
+                $("#content-load-more").html("");
+            },
+        });
+    }
+
+    if (action == "inactive") {
+        action = "active";
+        load_data(10, 0);
+    }
+
+    $(window).scroll(function () {
+    	if ($(window).scrollTop() + $(window).height() > $("#content").height()-(30/100*$("#content").height()) && action == "inactive") {
+            action = "active";
+            
+            if(start > 0){
+                start = start + limit;
+            } else {
+                start = 10;
+            }
+            
+            load_data(limit, start);
+        }
+    });
+</script>
 
 <script type="text/javascript">
 $("#keyword").keyup(function(){
@@ -189,8 +158,8 @@ $("#keyword").keyup(function(){
 });
 
 $("#keyword").focus(function(){
-	if($('.content').height() > 45){
-		$('.overlay').css("height", $('.content').height()+20+"px");
+	if($('#content').height() > 45){
+		$('.overlay').css("height", $('#content').height()+20+"px");
 	} else {
 		$('.overlay').css("height", "100%");
 	}
@@ -203,19 +172,22 @@ $("#keyword").focusout(function(){
 });
 
 function getSongs(keyword) {
-	$('.content').html('<div class="col-md-12"><center><img id="lazy-loader" src="<?= base_url('home/images/loader.gif');?>"/></center></div>');
+	$('#content').html('<div class="col-md-12"><center><img id="lazy-loader" src="<?= base_url('home/images/loader.gif');?>"/></center></div>');
 
 	$.ajax({
-	    url: "<?= base_url('SearchSong/search_song'); ?>",
-	    type: "POST",
-	    dataType: "json",
-	    data: {"keyword": keyword}
+	    url: '<?= base_url('SearchSong/search_song'); ?>?keyword='+keyword+'&limit=10&start=0',
+       	method: "GET",
+       	cache: false,
 	})
 	.done(function(data) {
-	    $('.content').html(data.html);
+		limit = 40;
+    	start = 0;
+   		action = "inactive";
 
-	    if($('.content').height() > 45){
-			$('.overlay').css("height", $('.content').height()+20+"px");
+	    $('#content').html(data);
+
+	    if($('#content').height() > 45){
+			$('.overlay').css("height", $('#content').height()+20+"px");
 		} else {
 			$('.overlay').css("height", "100%");
 		}
@@ -229,5 +201,3 @@ function getSongs(keyword) {
 	});
 }
 </script>
-
-<?php include 'footer.php'; ?>

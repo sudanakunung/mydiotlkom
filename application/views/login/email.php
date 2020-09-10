@@ -34,7 +34,10 @@
     					</div>
     					<div class="col-12">
     						<form id="login-email">
-								<div class="form-group">
+
+                                <input type="hidden" name="next_url" value="<?= $this->input->get('next_url'); ?>">
+
+                                <div class="form-group">
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text" id="email" style="background: transparent; color: white; border: 1px solid #fff; border-right: transparent;">
@@ -54,7 +57,7 @@
                                     </div>
 
                                     <div class="col-6">
-                                        <button type="submit" class="btn btn-primary form-control">CONTINUE</button>
+                                        <button type="submit" id="submit" class="btn btn-primary form-control btn-submit">CONTINUE</button>
                                     </div>
                                 </div>
 
@@ -76,29 +79,36 @@
 
 
 <script type="text/javascript">
+// $(".btn-submit").click(function(event) {
+//     $(this).html('<i class="fa fa-spinner fa-pulse fa-fw"></i> LOADING...');
+// });
+
 $("#login-email").submit(function(event) {
 
     event.preventDefault();
 
+    $("#submit").html('<i class="fa fa-spinner fa-pulse fa-fw"></i> LOADING...');
+
     var form_data = $(this).serialize();
 
     $.ajax({
-        url: '<?= base_url('login/email'); ?>',
+        url: '<?= base_url('Login/email'); ?>',
         type: 'POST',
-        data: form_data + "&<?= $this->security->get_csrf_token_name(); ?>=<?= $this->security->get_csrf_hash(); ?>",
+        data: form_data,
         datatype: 'json',
         success: function (data){ 
             
             if(data.status == 200){
-                window.location.replace("<?= base_url('/'); ?>");
+                window.location.replace("<?= base_url('/'.$this->input->get('next_url').''); ?>");
             } else {
                 alert(data.message);
+                $("#submit").html("CONTINUE");
                 return false;
             }
-
         },
         error: function (jqXHR, textStatus, errorThrown){
-            alert(textStatus);
+            $("#submit").html("CONTINUE");
+            alert(jqXHR);
             return false;
         }
     }); 

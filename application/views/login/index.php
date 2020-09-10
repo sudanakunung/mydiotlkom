@@ -30,7 +30,7 @@
         		</div>
 
         		<div class="col-md-8 mt-5">
-        			<a href="<?= base_url('login/showloginemail') ?>" class="btn btn-primary form-control">LOG IN</a>
+        			<a href="<?= base_url('login/showloginemail?next_url='.$this->input->get('next_url').'') ?>" class="btn btn-primary form-control">LOG IN</a>
         		</div>
 
         		<div class="col-md-8 mt-4 text-center text-white">
@@ -41,7 +41,7 @@
         			<div class="row">
         				<div class="col-6">
         					<div id="status"></div>
-        					<a href="" onClick="fbLogin(); return false;" class="btn btn-primary form-control">
+        					<a href="" id="siginFacebook" onClick="fbLogin(); return false;" class="btn btn-primary form-control">
         						<i class="fa fa-facebook" aria-hidden="true"></i>
         					</a>
 
@@ -49,9 +49,13 @@
 							</fb:login-button> -->
         				</div>
         				<div class="col-6">
-        					<a href="" id="signinGoogle" class="btn btn-danger form-control">
+        					<!-- <a href="" id="signinGoogle" class="btn btn-danger form-control">
         						<i class="fa fa-google" aria-hidden="true"></i>
-        					</a>
+        					</a> -->
+
+                            <a href="<?= $linkOuthGoogle; ?>" class="btn btn-danger form-control">
+                                <i class="fa fa-google" aria-hidden="true"></i>
+                            </a>
         				</div>
         			</div>
         		</div>
@@ -68,9 +72,12 @@
 <script>
 $('#signinGoogle').click(function(event) {
     event.preventDefault();
+	
+	$("#signinGoogle").html('<i class="fa fa-spinner fa-pulse fa-fw"></i> LOADING...');
+	
     gapi.auth2.authorize({
         
-        client_id: '330389880017-bvil48vmvj9ev4murcfp308ak6ijpm98.apps.googleusercontent.com',
+        client_id: '378935023510-92a13olugo9drqb7jes7o52ads4joat8.apps.googleusercontent.com',
         scope: 'email profile openid',
         response_type: 'id_token access_token permission'
 
@@ -89,10 +96,9 @@ $('#signinGoogle').click(function(event) {
         var idToken = response.id_token;
 
         $.ajax({
-            url: '<?= base_url('login/google'); ?>',
+            url: "<?= base_url('Login/google'); ?>",
             type: 'POST',
             data: {
-                '<?= $this->security->get_csrf_token_name(); ?>': '<?= $this->security->get_csrf_hash(); ?>',
                 'token_type': token_type,
                 'accessToken': accessToken, 
                 'idToken': idToken
@@ -100,19 +106,21 @@ $('#signinGoogle').click(function(event) {
             datatype: 'json',
             success: function (data){ 
                 if(data.status == 200){
-                    window.location.replace("<?= base_url('/'); ?>");
+                    window.location.replace("<?= base_url('/'.$this->input->get('next_url').''); ?>");
                 } else {
                     alert(data.message);
+					$("#signinGoogle").html('<i class="fa fa-google" aria-hidden="true"></i>');
                 }
             },
             error: function (jqXHR, textStatus, errorThrown){
                 alert(textStatus);
+				$("#signinGoogle").html('<i class="fa fa-google" aria-hidden="true"></i>');
             }
         });            
     });
 
     // auth2 = gapi.auth2.init({
-    //     client_id: '330389880017-bvil48vmvj9ev4murcfp308ak6ijpm98.apps.googleusercontent.com',
+    //     client_id: '378935023510-92a13olugo9drqb7jes7o52ads4joat8.apps.googleusercontent.com',
     //     scope: 'email profile openid',
     //     response_type: 'id_token access_token permission'
     // });
@@ -134,7 +142,8 @@ $('#signinGoogle').click(function(event) {
 window.fbAsyncInit = function() {
     // FB JavaScript SDK configuration and setup
     FB.init({
-        appId: '279391043077517', // FB App ID
+		appId: '279391043077517', // FB App ID
+		// appId: '328408954224270', // FB App ID MYDIOSING
         cookie: true, // enable cookies to allow the server to access the session
         xfbml: true, // parse social plugins on this page
         version: 'v6.0' // use graph api version 2.8
@@ -159,45 +168,47 @@ window.fbAsyncInit = function() {
 }(document, 'script', 'facebook-jssdk'));
 
 // Facebook login with JavaScript SDK
-function fbLogin() {   
+function fbLogin() {
+	
+	$("#siginFacebook").html('<i class="fa fa-spinner fa-pulse fa-fw"></i> LOADING...');
+	
     FB.login(function(response) {
         if (response.authResponse) {
 
             var accessToken = response.authResponse.accessToken;
 
             FB.api('/me/', 'GET', {"fields":"email,birthday,first_name,last_name"}, function(response) {
-                    $.ajax({
-                        url: '<?= base_url('login/facebook'); ?>',
-                        type: 'POST',
-                        data: {
-                            '<?= $this->security->get_csrf_token_name(); ?>': '<?= $this->security->get_csrf_hash(); ?>',
-                            'email': response.email,
-                            'birthday': response.birthday,
-                            'first_name': response.first_name,
-                            'last_name': response.last_name,
-                            'accessToken': accessToken
-                        },
-                        datatype: 'json',
-                        success: function (data){ 
-                            if(data.status == 200){
-                                window.location.replace("<?= base_url('/'); ?>");
-                            } else {
-                                alert(data.message);
-                            }
-                        },
-                        error: function (jqXHR, textStatus, errorThrown){
-                            alert(textStatus);
-                        }
-                    }); 
-                }
-            );        
+                $.ajax({
+					url: "<?= base_url('Login/facebook'); ?>",
+					type: 'POST',
+					data: {
+						'email': response.email,
+						'birthday': response.birthday,
+						'first_name': response.first_name,
+						'last_name': response.last_name,
+						'accessToken': accessToken
+					},
+					datatype: 'json',
+					success: function (data){ 
+						if(data.status == 200){
+                            alert('success');
+							// window.location.replace("<?= base_url('/'.$this->input->get('next_url').''); ?>");
+						} else {
+							alert(data.message);
+							$("#siginFacebook").html('<i class="fa fa-facebook" aria-hidden="true"></i>');
+						}
+					},
+					error: function (jqXHR, textStatus, errorThrown){
+						alert(textStatus);
+						$("#siginFacebook").html('<i class="fa fa-facebook" aria-hidden="true"></i>');
+					}
+				}); 
+            });        
 
         } else {
             alert('User cancelled login or did not fully authorize.');
+			$("#siginFacebook").html('<i class="fa fa-facebook" aria-hidden="true"></i>');
         }
-
     });
-
-
 }
 </script>

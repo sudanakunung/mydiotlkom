@@ -16,6 +16,115 @@
 	/*aside {
 		padding-top: 0 !important;
 	}*/	
+
+	.friend-profile{
+        border: solid 2px #1f42ba;
+        width: 100%;
+    }
+
+    .poster-recording{
+    	width: 100%;
+    	height: 229px;
+    	object-fit: cover;
+    	object-position: 50% 0;
+    }
+
+    @media only screen and (max-width: 768px) {
+        .friend-profile{
+            height: 105px;
+            object-fit: cover;
+        }
+    }
+
+    @media only screen and (max-width: 414px) {
+        .friend-profile{
+            height: 54px;
+            object-fit: cover;
+        }
+    }
+
+    @media only screen and (max-width: 411px) {
+        .friend-profile{
+            height: 53.5px;
+            object-fit: cover;
+        }
+    }
+
+    @media only screen and (max-width: 375px) {
+        .friend-profile{
+            height: 47.5px;
+            object-fit: cover;
+        }
+    }
+
+    @media only screen and (max-width: 360px) {
+        .friend-profile{
+            height: 45px;
+            object-fit: cover;
+        }
+    }
+
+    @media only screen and (max-width: 320px) {
+        .friend-profile{
+            height: 38.33px;
+            object-fit: cover;
+        }
+    }
+
+    .col-comment{
+    	position: relative;
+    }
+
+    .input-comment{
+    	width: 100%; 
+    	border-radius: 7px;
+    	padding: 5px 10px;
+    	border: solid 1px #5e678e;
+    }
+
+    .send-icon{
+    	position: absolute; position: absolute;
+	    right: 25px;
+	    top: 8px;
+	    font-size: 20px;
+	    color:#080808;
+    }
+
+    .col-created-at{
+    	font-size: 8px; 
+    	font-weight: bold;
+    }
+
+    .info-views{
+    	font-size: 12px; 
+    	font-weight: bold; 
+    	color: #080808;
+    }
+
+    .info-title{
+    	font-size: 15px; 
+    	font-weight: bold; 
+    	color: #080808;
+    }
+
+    .input-comment::-webkit-input-placeholder {
+	  	font-size: 13px;
+	}
+	.input-comment::-moz-placeholder {
+	  	font-size: 13px;
+	}
+	.input-comment:-ms-input-placeholder {
+	  	font-size: 13px;
+	}
+	.input-comment:-moz-placeholder {
+	  	font-size: 13px;
+	}
+
+	.play-icon{
+		left: 43%;
+	    top: 35%;
+	    width: 55px;
+	}
 </style>
 
 <div class="container pt-5 content-title">
@@ -25,64 +134,102 @@
         		<div class="row">
         			<div class="col-12 pt-2">
         				<?php 
-        				if($friendFeeds <> null){
-        					foreach ($friendFeeds as $ff) { ?>
+        				if($friendFeeds['total'] <> 0){
+        					foreach ($friendFeeds['array'] as $ff) { ?>
         						<div class="row align-items-center border-bottom py-2">
 				        			<div class="col-12">
 				        				<div class="row align-items-center pb-2">
 				        					<div class="col-2 pr-0">
 				        						<?php
-				        						if($ff->image_profile <> null || !empty($ff->image_profile)){
-				        							$image_profile = base_url('uploads/profile/'.$ff->image_profile.'');
-				        						} else {
-				        							$image_profile = base_url('uploads/profile/default/default-profile.jpg');
-				        						}
+				        						if(!empty($ff['urlPP']) || $ff['urlPP'] != null) {
+													if($data = @getimagesize($ff['urlPP'])){
+														$src_profile_img = $ff['urlPP'];
+													}else{
+														$src_profile_img = base_url('assets/images/profile.png');
+													}
+												} else {
+													$src_profile_img = base_url('assets/images/profile.png');
+												}
 				        						?>
-				        						<img src="<?= $image_profile; ?>" style="border: solid 2px #1f42ba;" class="img-fluid rounded-circle">
+
+				        						<img src="<?= $src_profile_img; ?>" class="rounded-circle friend-profile">
 				        					</div>
 				        					<div class="col-10 font-weight-bold" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-				        						<?= $ff->image_profile; ?>
+				        						<?= $ff['name']; ?>
 				        					</div>
 				        				</div>
-				        				<div class="row">
-				        					<div class="col-12">
-				        						<small class="mb-0">
-				        							<?= ucwords($ff->log_activity); ?>
-				        						</small>
-				        						<br />
-				        						<?= $ff->description; ?>
+				        				<div class="row" onClick="mydioclip('<?= $ff['urlRecordingAudio']; ?>', '<?= str_replace(array("\r\n","'"), array(" ","`"), $ff['title']); ?>', '<?= $ff['recordingId']; ?>')">
+				        					<div class="col-12 position-relative">
+				        						<img class="play-icon" src="<?= base_url('assets/images/play_video.png'); ?>">
+				        						<img src="<?= $ff['urlPoster']; ?>" class="img-fluid rounded poster-recording">
 				        					</div>		        					
 				        				</div>
 				        				<div class="row pt-3 pb-2">
 				        					<div class="col-5">
 				        						<div class="row align-items-center">
 				        							<div class="col">
-				        								<?php
-				        								$this->db->where('id', $ff->id);
-														$this->db->where('user_id', $this->session->userdata('userId'));
-														$findUser = $this->db->get('feed_likes')->num_rows();
+				        								<?php 
+				        								$reqTime = date('YmdHis');
 
-				        								if($findUser > 0){ ?>
-				        									<img src="<?= base_url('assets/images/love_friend_feed_red.jpg'); ?>" class="img-fluid love-feed" feed-id="<?= $ff->id; ?>" method="unlike">
-				        								<?php
-				        								} else { ?>
-				        									<img src="<?= base_url('assets/images/love_friend_feed.jpg'); ?>" class="img-fluid love-feed" feed-id="<?= $ff->id; ?>" method="like">
-				        								<?php
-				        								}
-				        								?>				        								
+				        								$params = [
+															'type' => 'status',
+															'id' => $ff['recordingId'],
+															'sessionId' => $this->session->userdata('sessionId'),
+															'reqTime' => $reqTime,
+															'sig' => genSignature($reqTime, $this->session->userdata('salt'))
+														];
+
+				        								$api_likestatus = $this->curl->simple_get(''.$this->url_api.'/Like?' . http_build_query($params));
+
+														$likeStatus = json_decode($api_likestatus, true);
+
+														if($likeStatus['islike'] == 1){ ?>
+															<img src="<?= base_url('assets/images/telkom/ic_love.svg'); ?>" class="img-fluid love-feed" feed-id="<?= $ff['recordingId'] ?>" method="unlike">
+														<?php
+														} else { ?>
+															<img src="<?= base_url('assets/images/telkom/ic_heart.svg'); ?>" class="img-fluid love-feed" feed-id="<?= $ff['recordingId'] ?>" method="like">
+														<?php
+														}
+				        								?>	
 				        							</div>
 				        							<div class="col">
-				        								<!-- <img src="<?= base_url('assets/images/share_friend_feed.jpg'); ?>" class="img-fluid"> -->
+				        								<a data-toggle="modal" data-target="#exampleModal5" href="Javascript.void(0)">
+					        								<img src="<?= base_url('assets/images/telkom/ic_share.svg'); ?>" class="img-fluid">
+					        							</a>
 				        							</div>
 				        							<div class="col">
-				        								<!-- <img src="<?= base_url('assets/images/chat_firend_feed.jpg'); ?>" class="img-fluid"> -->
+				        								<a data-toggle="modal" data-target="#exampleModal5" href="Javascript.void(0)">
+					        								<img src="<?= base_url('assets/images/telkom/ic_chat.svg'); ?>" class="img-fluid">
+					        							</a>
 				        							</div>
 				        						</div>
 				        					</div>
 				        					<div class="col-7 text-right">
-				        						<a href="<?= base_url('uploads') ?>/mydiosing-release.apk">
-					        						<img src="<?= base_url('assets/images/record.jpg'); ?>" width="25">
+				        						<a data-toggle="modal" data-target="#exampleModal5" href="Javascript.void(0)">
+					        						<img src="<?= base_url('assets/images/telkom/ic_record.svg'); ?>" width="25">
 					        					</a>
+				        					</div>
+				        				</div>
+
+				        				<div class="row">
+				        					<div class="col-12">
+				        						<hr>
+				        						<span class="info-views">
+				        							<?= $ff['countListen']; ?> views
+				        						</span>
+				        						<br>
+				        						<span class="info-title">
+					        						<?= $ff['title']; ?>
+					        					</span>
+					        				</div>
+					        				<div class="col-12 mt-1 mb-2 col-comment">
+				        						<input type="text" class="input-comment" placeholder="Comment..." readonly="true">
+				        						<span class="material-icons align-middle send-icon">send</span>
+				        					</div>
+				        					<div class="col-12 text-secondary col-created-at">
+				        						<span>
+					        						<?= date("M d", strtotime($ff['dtUpload'])); ?>
+					        					</span>
 				        					</div>
 				        				</div>
 				        			</div>
@@ -107,9 +254,13 @@
 </div>
 
 <script type="text/javascript">
+$(".input-comment").click(function(){
+	$('#exampleModal5').modal('show');
+});
+
 $(".love-feed").click(function(){
 	let method_love_feed = $(this).attr('method');
-	let feedID = $(this).attr('feed-id');
+	let recordingID = $(this).attr('feed-id');
 
 	if(method_love_feed == "like"){
         var url_like = "<?= base_url('Friends/store_feed_like'); ?>";
@@ -122,24 +273,24 @@ $(".love-feed").click(function(){
         type: 'POST',
         dataType: 'json',
         data: {
-        	'feedID': feedID
+        	'recordingID': recordingID
         }
     })
     .done(function(data) {
     	alert(data.message);
 
     	if(method_love_feed == "like"){
-    		$('img.love-feed[feed-id="'+feedID+'"]').attr('src', '<?= base_url('assets/images/love_friend_feed_red.jpg') ?>');
+    		$('img.love-feed[feed-id="'+recordingID+'"]').attr('src', '<?= base_url('assets/images/love_friend_feed_red.jpg') ?>');
 
-    		$('img.love-feed[feed-id="'+feedID+'"]').attr('method', 'unlike');
+    		$('img.love-feed[feed-id="'+recordingID+'"]').attr('method', 'unlike');
     	} else {
-    		$('img.love-feed[feed-id="'+feedID+'"]').attr('src', '<?= base_url('assets/images/love_friend_feed.jpg') ?>');
+    		$('img.love-feed[feed-id="'+recordingID+'"]').attr('src', '<?= base_url('assets/images/love_friend_feed.jpg') ?>');
 
-    		$('img.love-feed[feed-id="'+feedID+'"]').attr('method', 'like');
+    		$('img.love-feed[feed-id="'+recordingID+'"]').attr('method', 'like');
     	}
     })
     .fail(function() {
-        alert('Terjadi Kesalahan dengan Koneksi Internet Anda');
+        alert('An Error Has Occurred With Your Internet Connection');
     });
 
 });

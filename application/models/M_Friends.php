@@ -14,9 +14,13 @@ class M_Friends extends CI_Model {
 			$friend_ids[] = $value->following_user_id;
 		}
 
-		$this->db->where_in('user_id', $friend_ids, FALSE);
-		$this->db->join('users', 'users.id = user_feeds.user_id');
-		return $this->db->get('user_feeds')->result();
+		if (empty($friend_ids)) {
+			return null;
+		} else {
+			$this->db->where_in('user_id', $friend_ids, FALSE);
+			$this->db->join('users', 'users.id = user_feeds.user_id');
+			return $this->db->get('user_feeds')->result();
+		}		
 	}
 
 	public function getUser($userID)
@@ -62,13 +66,23 @@ class M_Friends extends CI_Model {
 	
 	public function storeFollowFriend($data)
 	{
-		$data = array(
+		$data_follow_friends = array(
 	        'user_id' => $data['user_id'],
 	        'following_user_id' => $data['friend_id'],
-	        'cerated_at' => date('Y-m-d H:i:s')
+	        'created_at' => date('Y-m-d H:i:s')
 		);
 
-		$this->db->insert('follow_friends', $data);
+		$this->db->insert('follow_friends', $data_follow_friends);
+
+		$data_notification = array(
+	        'user_id' => $data['friend_id'],
+	        'additional_id' => $data['user_id'],
+	        'content' => 'Is following you',
+	        'type' => 'follow',
+	        'created_at' => date('Y-m-d H:i:s')
+		);
+
+		$this->db->insert('user_notifications', $data_notification);
 	}
 
 	public function deleteFollowFriend($data){

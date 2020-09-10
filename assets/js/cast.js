@@ -9,34 +9,35 @@ class Castjs {
     ];
     // Doesn't matter in what order arguments are given
     if (receiver && receiver.indexOf(joinpolicies) === -1) {
-      var tmp     = joinpolicy;
-      joinpolicy  = receiver;
-      receiver    = tmp;
+      var tmp = joinpolicy;
+      joinpolicy = receiver;
+      receiver = tmp;
     }
     // Application variables
-    this.events         = {};
-    this.receiver       = receiver    || 'CC1AD845';
-    this.joinpolicy     = joinpolicy  || 'tab_and_origin_scoped';
-    this.available      = false;
-    this.player         = null;
-    this.controller     = null;
-    this.session        = null;
-    this.device         = null;
+    this.events = {};
+    this.receiver = receiver || '92EA264C';
+    this.joinpolicy = joinpolicy || 'origin_scoped';
+    this.available = false;
+    this.player = null;
+    this.controller = null;
+    this.session = null;
+    this.curSession = null;
+    this.device = null;
     // Media variables
-    this.source         = null;
-    this.title          = null;
-    this.description    = null;
-    this.poster         = null;
-    this.subtitles      = [];
-    this.volumeLevel    = 1;
-    this.muted          = false;
-    this.paused         = false;
-    this.time           = 0;
-    this.timePretty     = '00:00:00';
-    this.duration       = 0;
+    this.source = null;
+    this.title = null;
+    this.description = null;
+    this.poster = null;
+    this.subtitles = [];
+    this.volumeLevel = 1;
+    this.muted = false;
+    this.paused = false;
+    this.time = 0;
+    this.timePretty = '00:00:00';
+    this.duration = 0;
     this.durationPretty = '00:00:00';
-    this.progress       = 0;
-    this.state          = 'disconnected';
+    this.progress = 0;
+    this.state = 'disconnected';
     var interval = setInterval(() => {
       // Casting only works on chrome, opera, brave and vivaldi
       if (!window.chrome) {
@@ -47,22 +48,31 @@ class Castjs {
         clearInterval(interval);
         // Set cast options
         cast.framework.CastContext.getInstance().setOptions({
-          receiverApplicationId:  this.receiver,
-          autoJoinPolicy:         this.joinpolicy,
-          language:               this.language,
-          resumeSavedSession:     this.resume
+          receiverApplicationId: '92EA264C',
+          autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED,
+          resumeSavedSession: true
         });
         // Create controller
-        this.player     = new cast.framework.RemotePlayer();
+        this.player = new cast.framework.RemotePlayer();
         this.controller = new cast.framework.RemotePlayerController(this.player);
         // Register callback events
-        this.controller.addEventListener('isConnectedChanged',  this.controller_isConnectedChanged.bind(this));
-        this.controller.addEventListener('currentTimeChanged',  this.controller_currentTimeChanged.bind(this));
-        this.controller.addEventListener('durationChanged',     this.controller_durationChanged.bind(this));
-        this.controller.addEventListener('volumeLevelChanged',  this.controller_volumeLevelChanged.bind(this));
-        this.controller.addEventListener('isMutedChanged',      this.controller_isMutedChanged.bind(this));
-        this.controller.addEventListener('isPausedChanged',     this.controller_isPausedChanged.bind(this));
-        this.controller.addEventListener('playerStateChanged',  this.controller_playerStateChanged.bind(this));
+        this.controller.addEventListener('isConnectedChanged', this.controller_isConnectedChanged.bind(this));
+        this.controller.addEventListener('currentTimeChanged', this.controller_currentTimeChanged.bind(this));
+        this.controller.addEventListener('durationChanged', this.controller_durationChanged.bind(this));
+        this.controller.addEventListener('volumeLevelChanged', this.controller_volumeLevelChanged.bind(this));
+        this.controller.addEventListener('isMutedChanged', this.controller_isMutedChanged.bind(this));
+        this.controller.addEventListener('isPausedChanged', this.controller_isPausedChanged.bind(this));
+        this.controller.addEventListener('playerStateChanged', this.controller_playerStateChanged.bind(this));
+
+        cast.framework.CastContext.getInstance().addEventListener(
+          cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
+          function () {
+            simpleSession = new cast.framework.CastContext.getInstance().getCurrentSession();
+            let ses = new cast.framework.SessionStateEventData(simpleSession, simpleSession.getSessionState());
+            this.curSession = ses.session;
+          }.bind(this)
+        );
+        // debugger;
         this.available = true;
         this.trigger('available');
       }
@@ -85,46 +95,48 @@ class Castjs {
       // Set device name
       this.device = cast.framework.CastContext.getInstance().getCurrentSession().getCastDevice().friendlyName;
       // Update media variables
-      this.source         = this.player.mediaInfo.contentId;
-      this.title          = this.player.title                       || null;
-      this.description    = this.player.mediaInfo.metadata.subtitle || null;
-      this.poster         = this.player.imageUrl                    || null;
-      this.subtitles      = [];
-      this.volumeLevel    = this.player.volumeLevel;
-      this.muted          = this.player.isMuted;
-      this.paused         = this.player.isPaused;
-      this.time           = this.player.currentTime;
-      this.timePretty     = this.controller.getFormattedTime(this.player.currentTime);
-      this.duration       = this.player.duration;
+      this.source = this.player.mediaInfo.contentId;
+      this.title = this.player.title || null;
+      this.description = this.player.mediaInfo.metadata.subtitle || null;
+      this.poster = this.player.imageUrl || null;
+      this.subtitles = [];
+      this.volumeLevel = this.player.volumeLevel;
+      this.muted = this.player.isMuted;
+      this.paused = this.player.isPaused;
+      this.time = this.player.currentTime;
+      this.timePretty = this.controller.getFormattedTime(this.player.currentTime);
+      this.duration = this.player.duration;
       this.durationPretty = this.controller.getFormattedTime(this.player.duration);
-      this.progress       = this.controller.getSeekPosition(this.player.currentTime, this.player.duration);
-      this.state          = this.player.playerState.toLowerCase();
+      this.progress = this.controller.getSeekPosition(this.player.currentTime, this.player.duration);
+      this.state = this.player.playerState.toLowerCase();
       // Loop over the subtitle tracks
       for (var i in this.player.mediaInfo.tracks) {
         // Check for subtitle
         if (this.player.mediaInfo.tracks[i].type === 'TEXT') {
           // Push to media subtitles array
           this.subtitles.push({
-            label:  this.player.mediaInfo.tracks[i].name,
-            source:    this.player.mediaInfo.tracks[i].trackContentId
+            label: this.player.mediaInfo.tracks[i].name,
+            source: this.player.mediaInfo.tracks[i].trackContentId
           })
         }
       }
+
       // Get the active subtitle
-      var active = cast.framework.CastContext.getInstance().getCurrentSession().getSessionObj().media[0].activeTrackIds;
-      if (active.length && this.subtitles[active[0]]) {
-        this.subtitles[active[0]].active = true;
-      }
+      // var active = cast.framework.CastContext.getInstance().getCurrentSession().getSessionObj().media[0].activeTrackIds;
+      // if (active.length && this.subtitles[active[0]]) {
+      //   this.subtitles[active[0]].active = true;
+      // }
+
       // Trigger session event
       this.trigger('session');
     })
   };
 
   controller_currentTimeChanged() {
-    this.time           = this.player.currentTime;
-    this.duration       = this.player.duration;
-    this.progress       = this.controller.getSeekPosition(this.time, this.duration);
-    this.timePretty     = this.controller.getFormattedTime(this.time);
+    this.time = this.player.currentTime;
+    this.duration = this.player.duration;
+    this.progress = this.controller.getSeekPosition(this.time, this.duration);
+    this.timePretty = this.controller.getFormattedTime(this.time);
     this.durationPretty = this.controller.getFormattedTime(this.duration);
     this.trigger('timeupdate');
   };
@@ -148,7 +160,7 @@ class Castjs {
     this.trigger('paused');
   };
 
-  controller_playerStateChanged(){
+  controller_playerStateChanged() {
     this.state = this.player.playerState.toLowerCase();
     if (this.state === 'idle') {
       this.trigger('ended')
@@ -201,6 +213,45 @@ class Castjs {
     }
   };
 
+  queueing(source, metadata = {}) {
+    if (!source) {
+      return this.trigger('error', 'No media source specified.');
+    }
+
+    metadata.source = source;
+
+    for (var key in metadata) {
+      if (metadata.hasOwnProperty(key)) {
+        this[key] = metadata[key];
+      }
+    }
+
+    var mediaInfo = new chrome.cast.media.MediaInfo(this.source);
+    mediaInfo.metadata = new chrome.cast.media.GenericMediaMetadata();
+
+    mediaInfo.metadata.images = [new chrome.cast.Image(this.poster)];
+    mediaInfo.metadata.title = this.title;
+    mediaInfo.metadata.subtitle = this.description;
+
+    // alert(this.curState);
+
+    let item = new chrome.cast.media.QueueItem(mediaInfo);
+    cast.framework.CastContext.getInstance().getCurrentSession().getMediaSession().queueAppendItem(
+      item,
+      function onSuccess() {
+        alert('Queue Added ' + item.media.metadata.title)
+      },
+      function onError(err) {
+        alert('Queue not added')
+      });
+  }
+
+  view_queue() {
+    var items = new cast.framework.CastContext.getInstance().getCurrentSession().getMediaSession().items;
+
+    return items;
+  }
+
   cast(source, metadata = {}) {
     // We need a source! Don't forget to enable CORS
     if (!source) {
@@ -208,7 +259,7 @@ class Castjs {
     }
 
     metadata.source = source;
-    
+
     // Update media variables with user input
     for (var key in metadata) {
       if (metadata.hasOwnProperty(key)) {
@@ -223,30 +274,30 @@ class Castjs {
       }
 
       // Create media cast object
-      var mediaInfo       = new chrome.cast.media.MediaInfo(this.source);
-      mediaInfo.metadata  = new chrome.cast.media.GenericMediaMetadata();
+      var mediaInfo = new chrome.cast.media.MediaInfo(this.source);
+      mediaInfo.metadata = new chrome.cast.media.GenericMediaMetadata();
 
       // This part is the reason why people love this library <3
       if (this.subtitles.length) {
         // I'm using the Netflix subtitle styling, never had complains
-        mediaInfo.textTrackStyle                  = new chrome.cast.media.TextTrackStyle();
-        mediaInfo.textTrackStyle.backgroundColor  = '#00000000';
-        mediaInfo.textTrackStyle.edgeColor        = '#00000016';
-        mediaInfo.textTrackStyle.edgeType         = chrome.cast.media.TextTrackEdgeType.DROP_SHADOW;
-        mediaInfo.textTrackStyle.fontFamily       = chrome.cast.media.TextTrackFontGenericFamily.CASUAL;
-        mediaInfo.textTrackStyle.fontScale        = 1.0;
-        mediaInfo.textTrackStyle.foregroundColor  = '#FFFFFF';
+        mediaInfo.textTrackStyle = new chrome.cast.media.TextTrackStyle();
+        mediaInfo.textTrackStyle.backgroundColor = '#00000000';
+        mediaInfo.textTrackStyle.edgeColor = '#00000016';
+        mediaInfo.textTrackStyle.edgeType = chrome.cast.media.TextTrackEdgeType.DROP_SHADOW;
+        mediaInfo.textTrackStyle.fontFamily = chrome.cast.media.TextTrackFontGenericFamily.CASUAL;
+        mediaInfo.textTrackStyle.fontScale = 1.0;
+        mediaInfo.textTrackStyle.foregroundColor = '#FFFFFF';
 
         var tracks = [];
         for (var i in this.subtitles) {
           var track = new chrome.cast.media.Track(i, chrome.cast.media.TrackType.TEXT);
-          track.name              = this.subtitles[i].label;
-          track.subtype           = chrome.cast.media.TextTrackType.CAPTIONS;
-          track.trackContentId    = this.subtitles[i].source;
-          track.trackContentType  = 'text/vtt'
+          track.name = this.subtitles[i].label;
+          track.subtype = chrome.cast.media.TextTrackType.CAPTIONS;
+          track.trackContentId = this.subtitles[i].source;
+          track.trackContentType = 'text/vtt'
           // This bug made me question life for a while
-          track.trackId           = parseInt(i);
-          track.type              = chrome.cast.media.TrackType.TEXT;
+          track.trackId = parseInt(i);
+          track.type = chrome.cast.media.TrackType.TEXT;
           tracks.push(track);
         }
 
@@ -254,16 +305,16 @@ class Castjs {
       }
 
       // Let's prepare the metadata
-      mediaInfo.metadata.images   = [new chrome.cast.Image(this.poster)];
-      mediaInfo.metadata.title    = this.title;
+      mediaInfo.metadata.images = [new chrome.cast.Image(this.poster)];
+      mediaInfo.metadata.title = this.title;
       mediaInfo.metadata.subtitle = this.description;
-      
+
       // Prepare the actual request
       var request = new chrome.cast.media.LoadRequest(mediaInfo);
-      
+
       // Didn't really test this currenttime thingy, dont forget
       request.currentTime = this.time;
-      request.autoplay    = !this.paused;
+      request.autoplay = !this.paused;
 
       // If multiple subtitles, use the active: true one
       if (this.subtitles.length) {
@@ -278,43 +329,80 @@ class Castjs {
       // Here we go!
       cast.framework.CastContext.getInstance().getCurrentSession().loadMedia(request).then(() => {
 
-        // if(unsubscribe == 1){
-        //   var counter = 60;
-        //   var interval = setInterval(function() {
-        //       counter--;
-        //       if (counter <= 0) {
-        //           clearInterval(interval);
-                  
-        //           // Terminate session
-        //           // cast.framework.CastContext.getInstance().endCurrentSession(true);
-
-        //           disconnect();
-
-        //           skiptotime(counter);
-        //       }
-        //   }, 1000);
-        // }
+        reset_player();
 
         // Set device name
         this.device = cast.framework.CastContext.getInstance().getCurrentSession().getCastDevice().friendlyName;
-        
+
         this.trigger('session');
 
-        reset_player(this.time);
-        
-        // $('.button-pause').removeClass('hide');
-        // $('.button-pause').show();
-        
+        player2.muted(false);
+        var player2_isVolumeMutedCasting = player2.muted();
+        if (player2_isVolumeMutedCasting) {
+          cc.mute();
+        } else {
+          cc.unmute();
+        }
+        player2.volume(0);
+        player2.controlBar.hide();
+
+        var vocalStatusForCasting = $(".vocal").attr("index-track");
+        var pitchValueVocalForCasting = $("#pitchValue").attr("pitch-value");
+        var pitchIndexForCasting = 0;
+        if (vocalStatusForCasting == "1") {
+          if (pitchValueVocalForCasting == "0") {
+            pitchIndexForCasting = 2;
+          } else if (pitchValueVocalForCasting == "1") {
+            pitchIndexForCasting = 12;
+          } else if (pitchValueVocalForCasting == "2") {
+            pitchIndexForCasting = 13;
+          } else if (pitchValueVocalForCasting == "3") {
+            pitchIndexForCasting = 14;
+          } else if (pitchValueVocalForCasting == "-1") {
+            pitchIndexForCasting = 11;
+          } else if (pitchValueVocalForCasting == "-2") {
+            pitchIndexForCasting = 10;
+          } else if (pitchValueVocalForCasting == "-3") {
+            pitchIndexForCasting = 9;
+          }
+        } else {
+          if (pitchValueVocalForCasting == "0") {
+            pitchIndexForCasting = 1;
+          } else if (pitchValueVocalForCasting == "1") {
+            pitchIndexForCasting = 6;
+          } else if (pitchValueVocalForCasting == "2") {
+            pitchIndexForCasting = 7;
+          } else if (pitchValueVocalForCasting == "3") {
+            pitchIndexForCasting = 8;
+          } else if (pitchValueVocalForCasting == "-1") {
+            pitchIndexForCasting = 5;
+          } else if (pitchValueVocalForCasting == "-2") {
+            pitchIndexForCasting = 4;
+          } else if (pitchValueVocalForCasting == "-3") {
+            pitchIndexForCasting = 3;
+          }
+        }
+        cc.subtitle(pitchIndexForCasting);
+        $("#exampleModal15").modal('show');
+        window.setTimeout(function () {
+          $("#exampleModal15").modal('hide');
+        }, 3000);
+
         return this;
+
       }, (err) => {
+
         this.trigger('error', err);
         console.log(err);
         return this;
+
       })
     }, (err) => {
+
       this.trigger('error', err);
       console.log(err);
       return this;
+
     })
   };
 
@@ -378,7 +466,7 @@ class Castjs {
         }
       }
 
-      player2.currentTime(this.time);
+      // player2.currentTime(0);
 
       return this;
     }, (err) => {
@@ -393,26 +481,35 @@ class Castjs {
 
     // $('.button-play').hide();
     // $('.button-pause').hide();
-    
+
+    //Kill media
+    cast.framework.CastContext.getInstance().getCurrentSession().getMediaSession().stop(
+      chrome.cast.media.StopRequest(),
+      function () {
+        cast.framework.CastContext.getInstance().endCurrentSession(true);
+      },
+      function (e) {
+        console.log(e);
+      }
+    )
     // Terminate session
-    cast.framework.CastContext.getInstance().endCurrentSession(true);
     this.controller.stop();
     // Reset some variables
-    this.session        = false;
-    this.source         = null;
-    this.title          = null;
-    this.description    = null;
-    this.poster         = null;
-    this.subtitles      = [];
-    this.volumeLevel    = 1;
-    this.muted          = false;
-    this.paused         = false;
-    this.time           = 0;
-    this.timePretty     = '00:00:00';
-    this.duration       = 0;
+    this.session = false;
+    this.source = null;
+    this.title = null;
+    this.description = null;
+    this.poster = null;
+    this.subtitles = [];
+    this.volumeLevel = 1;
+    this.muted = false;
+    this.paused = false;
+    this.time = 0;
+    this.timePretty = '00:00:00';
+    this.duration = 0;
     this.durationPretty = '00:00:00';
-    this.progress       = 0;
-    this.state          = 'disconnected';
+    this.progress = 0;
+    this.state = 'disconnected';
     this.trigger('disconnect');
     return this;
   };

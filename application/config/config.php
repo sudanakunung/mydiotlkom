@@ -22,10 +22,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | If you need to allow multiple domains, remember that this file is still
 | a PHP script and you can easily do that on your own.
 |
-*/
+// */
 $config['base_url'] = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") ? "https" : "http");
 $config['base_url'] .= "://".$_SERVER['HTTP_HOST'];
 $config['base_url'] .= str_replace(basename($_SERVER['SCRIPT_NAME']),"",$_SERVER['SCRIPT_NAME']);
+
+// $config['base_url'] = "https://draft.mydiosing.com/";
 
 /*
 |--------------------------------------------------------------------------
@@ -138,7 +140,9 @@ $config['subclass_prefix'] = 'MY_';
 | Note: This will NOT disable or override the CodeIgniter-specific
 |	autoloading (application/config/autoload.php)
 */
-$config['composer_autoload'] = FALSE;
+// $config['composer_autoload'] = FALSE;
+
+$config['composer_autoload'] = "vendor/autoload.php";
 
 /*
 |--------------------------------------------------------------------------
@@ -381,7 +385,7 @@ $config['encryption_key'] = '';
 */
 $config['sess_driver'] = 'files';
 $config['sess_cookie_name'] = 'ci_session';
-$config['sess_expiration'] = 7200;
+$config['sess_expiration'] = 1209600;
 $config['sess_save_path'] = NULL;
 $config['sess_match_ip'] = FALSE;
 $config['sess_time_to_update'] = 300;
@@ -456,7 +460,7 @@ $config['csrf_token_name'] = 'csrf_test_name';
 $config['csrf_cookie_name'] = 'csrf_cookie_name';
 $config['csrf_expire'] = 7200;
 $config['csrf_regenerate'] = TRUE;
-$config['csrf_exclude_uris'] = array('AdminPost/getPost', 'Video/getVideo', 'Home/karafie', 'Home/trending', 'Home/getNews/id','Home/getNews/en', 'Home/recordClip', 'record-clip', 'Home/lazySongs', 'Subscription/paypal_ipn', 'SearchSong/search_song', 'Messenger/storechat','Messenger/notifmessages','Messenger/notifchats','Messenger/ceknewchat','Messenger/updatereadnewchat','Messenger/uploadimage','ProfileMember/unfollow','ProfileMember/update','Home/likevideo','SearchSong/search_song_suggest','SearchFriend/search_friend_suggest','Friends/follow', 'Friends/unfollow','SearchFriend/search_friend','Friends/store_feed_like','Friends/delete_feed_like','Home/checkLikeVideo');
+$config['csrf_exclude_uris'] = array('AdminPost/getPost', 'Video/getVideo', 'Home/karafie', 'Home/trending', 'Home/getNews/id','Home/getNews/en', 'Home/recordClip', 'record-clip', 'Home/lazySongs', 'Subscription/paypal_ipn', 'SearchSong/search_song', 'Messenger/storechat','Messenger/notifmessages','Messenger/notifchats','Messenger/ceknewchat','Messenger/updatereadnewchat','Messenger/uploadimage','ProfileMember/unfollow','ProfileMember/update','Home/likevideo','SearchSong/search_song_suggest','SearchFriend/search_friend_suggest','Friends/follow', 'Friends/unfollow','SearchFriend/search_friend','Friends/store_feed_like','Friends/delete_feed_like','Home/checkLikeVideo','Login/email','ProfileMember/change_password','Login/facebook','Login/google','SongCategory/filter_song','Subscription/paypal_ipn','Register/store','Register/resend_email','ProfileMember/check_isfollowing','ProfileMember/update_pp','Subscription/creat_subscription','Subscription/check_subscribe_status','Subscription/cancel_subscription_paypal','Subscription/check_subscribe_status','Subscription/update_purchase','ProfileMember/store_clip','ProfileMember/delete_clip');
 
 /*
 |--------------------------------------------------------------------------

@@ -72,7 +72,6 @@
     #basic-addon2{
     	background: transparent;
     }
-
     .overlay{
     	position: absolute;
 		top: 110px;
@@ -81,13 +80,51 @@
 		z-index: 10;
 		background-color: rgba(0,0,0,0.5);
     }
-
     .friend-name{
     	white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     	font-size: 14px;
     }
     .friend-follow{
     	font-size: 12px;
+    }
+    .friend-profile-box{
+    	width: 100%;
+        object-fit: cover;
+    }
+    @media only screen and (max-width: 768px) {
+        .friend-profile-box{
+            height: 320px;
+        }
+    }
+
+    @media only screen and (max-width: 414px) {
+        .friend-profile-box{
+            height: 167px;
+        }
+    }
+
+    @media only screen and (max-width: 411px) {
+        .friend-profile-box{
+            height: 165.5px;
+        }
+    }
+
+    @media only screen and (max-width: 375px) {
+        .friend-profile-box{
+            height: 147.5px;
+        }
+    }
+
+    @media only screen and (max-width: 360px) {
+        .friend-profile-box{
+            height: 140px;
+        }
+    }
+
+    @media only screen and (max-width: 320px) {
+        .friend-profile-box{
+            height: 120px;
+        }
     }
 </style>
 
@@ -111,30 +148,34 @@
         		if(isset($users)){
         			echo '
         			<p>Search for user \''.$keyword.'\'</p>
-					<div class="row">
+					<div id="search-result" class="row">
         			';
-        			foreach ($users as $key => $value) {
-        				$countFollowers = $this->db->get_where('follow_friends', ['following_user_id' => $value->id])->num_rows();
+        			foreach ($users['array'] as $key => $value) {
+        				// $countFollowers = $this->db->get_where('follow_friends', ['following_user_id' => $value->id])->num_rows();
 
-						$countFollowing = $this->db->get_where('follow_friends', ['user_id' => $value->id])->num_rows();
+						// $countFollowing = $this->db->get_where('follow_friends', ['user_id' => $value->id])->num_rows();
 
-						if($value->image_profile <> null || !empty($value->image_profile)){
-							$src_profile = base_url('uploads/profile/').$value->image_profile;
+						if(!empty($value['urlPP']) || $value['urlPP'] != null) {
+							if($data = @getimagesize($user['urlPP'])){
+								$src_profile_img = $user['urlPP'];
+							}else{
+								$src_profile_img = base_url('uploads/profile/default/default-profile.jpg');
+							}
 						} else {
 							$src_profile = base_url('uploads/profile/default/default-profile.jpg');
 						}
 						
 						echo '
-						<div class="col-6 mb-3 friend" onClick="gotoProfile('.$value->id.'); return false">
+						<div class="col-6 mb-3 friend" onClick="gotoProfile('.$value['userId'].'); return false">
 							<div class="border p-1">
 			    				<p class="mb-1">
-			        				<img src="'.$src_profile.'" class="img-fluid mb-2">
+			        				<img src="'.$src_profile.'" class="friend-profile-box mb-2">
 			        			</p>
 			    				<p class="mb-1 friend-name">
-			    					'.addslashes($value->name).'
+			    					'.addslashes($value['name']).'
 			    				</p>
 			    				<p class="mb-1 text-center friend-follow">
-			    					'.$countFollowers.' Follower | '.$countFollowing.' Following
+			    					'.$value['follower'].' Follower | '.$value['following'].' Following
 			    				</p>    
 							</div>				
 						</div>
@@ -202,6 +243,34 @@ function gotoProfile(userID)
 {
 	window.location = "<?= base_url('friend-profile/'); ?>"+ userID;
 }
+</script>
+
+<script type="text/javascript">
+    $(window).on("scroll", function() {
+        var scrollHeight = $(document).height();
+        var scrollPosition = $(window).height() + $(window).scrollTop();
+        if ((scrollHeight - scrollPosition) / scrollHeight === 0) {
+            load_more_data();
+        }
+    });
+
+    function load_more_data() {
+        
+        // $("#"+loadfor+"-load-more").html('<div class="col-md-12"><center><img id="lazy-loader" src="<?php echo base_url('home/images/loader.gif');?>"/></center></div>');
+
+        let last_numItems = $('.friend').length;
+
+        let url = '<?= site_url('friend-by-search/load-more-friends'); ?>';
+
+        $.ajax({
+            url: url+'?keyword=<?= $this->input->get('keyword'); ?>&last_items='+last_numItems,
+            cache: false,
+            success: function(data){
+                // $("#"+loadfor+"-load-more").html('');
+                $("#search-result").append(data);
+            }
+        });
+    }
 </script>
 
 <?php include 'footer.php'; ?>

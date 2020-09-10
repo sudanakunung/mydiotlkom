@@ -37,10 +37,10 @@
     <link href="https://fonts.googleapis.com/css?family=Heebo" rel="stylesheet">
     <link rel="stylesheet" href="<?php echo base_url('home/');?>css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="<?php echo base_url('home/');?>css/js-offcanvas.css">
-    <link href="https://vjs.zencdn.net/6.10.1/video-js.css" rel="stylesheet">
+    <!-- <link href="https://vjs.zencdn.net/6.10.1/video-js.css" rel="stylesheet"> -->
+    <link href="https://vjs.zencdn.net/7.8.4/video-js.css" rel="stylesheet" />
     <link href="<?php echo base_url('assets'); ?>/css/videojs-stop-button.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/videojs-overlay/1.1.4/videojs-overlay.css">
     <link rel="stylesheet" href="<?php echo base_url('home/');?>css/index.css">
@@ -49,159 +49,106 @@
     <link rel="stylesheet" href="<?= base_url('assets'); ?>/css/owl.theme.css">
     <link rel="stylesheet" href="<?= base_url('assets'); ?>/css/bootstrap-datepicker.min.css">
     <link rel="stylesheet" href="<?php echo base_url('home/');?>css/styles.css">
+    
+    <link rel="shortcut icon" href="<?= base_url('assets/pwa_icons/icon-192x192.png'); ?>">
+    <link rel="apple-touch-icon" href="<?= base_url('assets/pwa_icons/icon-192x192.png'); ?>">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
     <script>
-        (function(i, s, o, g, r, a, m) {
-            i['GoogleAnalyticsObject'] = r;
-            i[r] = i[r] || function() {
-                (i[r].q = i[r].q || []).push(arguments)
-            }, i[r].l = 1 * new Date();
-            a = s.createElement(o),
-                m = s.getElementsByTagName(o)[0];
-            a.async = 1;
-            a.src = g;
-            m.parentNode.insertBefore(a, m)
+      (function(i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function() {
+          (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
         })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
         ga('create', 'UA-117334365-4', 'auto');
         ga('send', 'pageview');
-    </script>
+        </script>
 
-    <!-- GTranslate: https://gtranslate.io/ -->
+<!-- GTranslate: https://gtranslate.io/ -->
     <style type="text/css">
         #goog-gt-tt {
-            display: none !important;
+          display: none !important;
         }
         
         .goog-te-banner-frame {
-            display: none !important;
+          display: none !important;
         }
         
         .goog-te-menu-value:hover {
-            text-decoration: none !important;
+          text-decoration: none !important;
         }
         
         .goog-te-gadget-icon {
-            background-image: url(//gtranslate.net/flags/gt_logo_19x19.gif) !important;
+          background-image: url(//gtranslate.net/flags/gt_logo_19x19.gif) !important;
             background-position: 0 0 !important;
+          }
+          .separator {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            text-align: center;
+          }
+          .separator::before, .separator::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #ddd;
+          }
+          .separator::before {
+            margin-right: .75em;
+          }
+          .separator::after {
+            margin-left: .75em;
         }
         
-        body {
-            top: 0 !important;
-            background-image: url("<?= base_url('assets/images/tab_bg.jpg'); ?>");
-            /* Center and scale the image nicely */
-            background-position: top;
-            background-repeat: no-repeat;
-            background-size: cover;
+        .poppins {
+          font-family: 'Poppins', sans-serif;
+        }
+        
+        #exampleModal15.in {
+          opacity: 0.9;
         }
 
-        @media only screen and (max-width: 768px) {
-          /* For mobile phones: */
-          body {
-              background-image: url("<?= base_url('assets/images/mobile_bg.jpg'); ?>");
-              /* Center and scale the image nicely */
-              background-position: top;
-              background-repeat: no-repeat;
-              background-size: cover;
-          }
+        .popover-body{
+            color: #212563;
         }
+        .vjs-poster{
+          background-size: cover;
+          border-radius:.3rem
+        }
+        </style>
 
-        section.full-height{
-            height: 100%;  
-            display: flex;
-        }
-
-        .c-offcanvas-bg.is-animating, .c-offcanvas-bg.is-open{
-            background-color: rgba(0, 0, 0, 0.6);
-        }
-
-        .footer-mobile {
-          position: fixed;
-          bottom: -1px;
-          width: 100%;
-          background-color: #fff;
-        }
-
-        input.search{
-          background: transparent;
-          border-left: 0;
-        }
-
-        .search-icon{
-          padding-right: 0;
-          background: transparent;
-          color: #fff;
-          border-right: 0;
-        }
-
-        .search::-webkit-input-placeholder { /* Edge */
-          color: #fff;
-          font-size: 10px;
-        }
-        .search:-ms-input-placeholder { /* Internet Explorer */
-          color: #fff;
-          font-size: 10px;
-        }
-        .search::placeholder {
-          color: #fff;
-          font-size: 10px;
-        }
-        .search-box{
-          width: 230px; position: absolute; top: 8.5px; left: 58px;
-        }
-
-        .kategori-chat{
-          width: 70px;
-          position: absolute;
-          top: 15px;
-          right: 4px;
-        }
-
-        #notifchat{
-          position: absolute;
-          padding: 6px 7px;
-          background: red;
-          color: white;
-          border-radius: 50%;
-          font-size: 12px;
-          line-height: 10px;
-          top: -8px;
-          right: 1px;
-        }
-
-        .search:focus, .search:focus-within{
-          border: 1px solid #ced4da;
-          border-left: 0;
-        }
-
-        .vjs-audio-button{
-          display: none;
-        }
-    </style>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="<?= base_url('home'); ?>/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="<?= base_url('home'); ?>/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="<?= base_url('assets'); ?>/css/custom.css">
 
 </head>
 
 <!-- <body style="background: #9699a0"> -->
-<body>
+  <body>
     <?php
     if(!isset($hide_navbar)){ ?>
         <!-- <section class="bg-black d-md-none" style="<?= $show_navbar; ?> position: fixed;z-index: 99;width: 100%;"> -->
 
-        <section class="d-md-none" style="<?= $show_navbar; ?> position: fixed;z-index: 99;width: 100%;">
+        <section class="d-md-none" style="<?= $show_navbar; ?> position: fixed;z-index: 99; width: 100%;">
           
           <!-- <div class="nav__color-strip"></div> -->
           
           <!-- <div class="container-fluid grid-contain"></div> -->
           <!-- <nav class="navbar navbar-dark" style="display: block;padding: 4px 0px;background-color: rgba(0,0,0, 0)!important"> -->
 
-          <nav class="navbar navbar-dark" style="display: block; padding: 8px 0px; background: rgb(44,103,203); background: linear-gradient(90deg, rgba(44,103,203,1) 0%, rgba(24,15,72,1) 100%);">
-              
+          <nav class="navbar navbar-dark" style="display: block; padding: 8px 0px; background:rgb(208, 74, 58)">
+          <div style="display:flex;justify-content:space-between">
               <?php
               if(!isset($navbar_back) || isset($show_menu)){ ?>
-                  <button class="navbar-toggler js-offcanvas-trigger" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" data-offcanvas-trigger="off-canvas" style="border-color: transparent !important;">
+                  <button class="navbar-toggler js-offcanvas-trigger" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" data-offcanvas-trigger="off-canvas" style="border-color: transparent !important;min-width:60px">
                       <!-- <span class="navbar-toggler-icon"></span> -->
                       <img src="<?= base_url('assets/images/menu.png'); ?>" class="img-fluid" style="height: 30px; width: auto;">
                       <?php 
@@ -211,10 +158,10 @@
                       }
                       ?>
                   </button>
-
+                
                   <?php
                   if(!isset($show_menu)){ ?>
-                    <div class="input-group search-box">
+                    <div class="input-group search-box mr-3">
                       <div class="input-group-prepend">
                         <span class="input-group-text search-icon" id="basic-addon1">
                           <i class="fa fa-search" aria-hidden="true"></i>
@@ -228,36 +175,45 @@
 
                     <div class="kategori-chat">
                       <a href="<?= base_url('song-by-category'); ?>">
-                        <img class="mr-2" src="<?= base_url('assets/images/kategori.png'); ?>" style="height: 25px; width: auto;">
+                        <img class="mr-2" src="<?= base_url('assets/images/kategori.png'); ?>" style="height: 28px; width: auto;">
                       </a>
-                      <a href="<?= base_url('messenger'); ?>">
+                      <!-- <a onclick="show_list()">
+                        <span id="notifchat" style="display: none;"></span>
+                        <img class="mr-2" src="<?= base_url('assets/images/playlist.png'); ?>" style="height: 25px; width: auto;">
+                      </a> -->
+                      <a data-toggle="modal" data-target="#exampleModal5" href="Javascript.void(0)">
                         <span id="notifchat" style="display: none;"></span>
                         <img src="<?= base_url('assets/images/chat.png'); ?>" style="height: 25px; width: auto;">
                       </a>
                     </div>
                   <?php
-                  } else { ?>
-                    <div class="kategori-chat" style="text-align: right; padding-right: 10px;">
-                      <a href="<?= base_url('messenger'); ?>">
+                  } 
+                  // else { ?>
+                    <!-- <div class="kategori-chat" style= "text-align: right;padding-right: 10px;position: absolute;right: 0;margin: 6px">
+                      <a data-toggle="modal" data-target="#exampleModal5" href="Javascript.void(0)">
                         <span id="notifchat" style="display: none;"></span>
                         <img src="<?= base_url('assets/images/chat.png'); ?>" style="height: 25px; width: auto;">
                       </a>
-                    </div>
+                    </div> -->
                   <?php
-                  }
+                  // }
                   ?>
 
               <?php
               } else { ?>
 
-                  <button class="navbar-toggler" type="button" style="border-color: transparent !important;" onclick="window.history.go(-1); return false;">
+                  <!-- <button class="navbar-toggler" type="button" style="border-color: transparent !important;" onclick="window.history.go(-1); return false;">
+                      <b><span class="material-icons text-white align-middle">arrow_back_ios</span></b>&nbsp;<span class="text-white align-middle" style="font-size: 18px;"><?= (isset($title_chat)) ? $title_chat : $title; ?></span>
+                  </button> -->
+
+                  <button class="navbar-toggler" type="button" style="border-color: transparent !important;" onclick="location.href = '<?= base_url(); ?>';">
                       <b><span class="material-icons text-white align-middle">arrow_back_ios</span></b>&nbsp;<span class="text-white align-middle" style="font-size: 18px;"><?= (isset($title_chat)) ? $title_chat : $title; ?></span>
                   </button>
 
               <?php
               }
               ?>
-              
+              </div>
               <div class="collapse navbar-collapse d-none" id="navbarCollapse">
                   <!-- 
                   <ul class="navbar-nav mr-auto">
@@ -374,7 +330,6 @@
     <?php
     }
     ?>
-    
     <!-- GTranslate: https://gtranslate.io/ -->
     <!--   <a href="#" onclick="doGTranslate('id|en');return false;" title="English" class="gflag nturl" style="background-position:-0px -0px;">
       <img src="//gtranslate.net/flags/blank.png" height="16" width="16" alt="English" /></a><a href="#" onclick="doGTranslate('id|fr');return false;" title="French" class="gflag nturl" style="background-position:-200px -100px;">

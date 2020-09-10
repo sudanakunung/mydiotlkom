@@ -7,19 +7,41 @@ class Notification extends CI_Controller {
 	{
 		parent::__construct();
 
-		if (!$this->session->has_userdata('memberLogin')) {
-			redirect('login','refresh');
-		}
+		// if (!$this->session->has_userdata('memberLogin')) {
+		// 	redirect('login?next_url=notification','refresh');
+		// }
 		
 		$this->load->helper('html');
 		$this->load->helper('date');
 		$this->load->model('M_Notification', 'notification');
+
+		$this->load->library('curl'); 
+		$this->client = new \GuzzleHttp\Client(['verify' => false , 'http_errors' => false]);
+		$this->url_api = 'https://dev.mydiosing.com/mydio'; // untuk dev, besok dicomment
 	}
 
 	public function index()
 	{
 		
-		$userNotif = $this->notification->getUserNotif($this->session->userdata('userId'));
+		if (!$this->session->has_userdata('memberLogin')) {
+			redirect('login?next_url=notification');
+		}
+
+		// $userNotif = $this->notification->getUserNotif($this->session->userdata('userId'));
+
+		$reqTime = date('YmdHis');
+
+		$params = [
+			'offset' => 0,
+			'limit' => 30,
+			'sessionId' => $this->session->userdata('sessionId'),
+			'reqTime' => $reqTime,
+			'sig' => genSignature($reqTime, $this->session->userdata('salt'))
+		];
+
+		$api_notification = $this->curl->simple_get(''.$this->url_api.'/Notification?' . http_build_query($params));
+
+		$userNotif = json_decode($api_notification, true);
 
 		$show_menu = true;
 		$custom_title = true;

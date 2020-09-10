@@ -1,5 +1,4 @@
 <?php 
-
 if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 class Home extends CI_Controller {
@@ -13,14 +12,18 @@ class Home extends CI_Controller {
 		// if (!$this->session->has_userdata('memberLogin')) {
 		// 	redirect('login','refresh');
 		// }
-
+		$this->load->helper('html');
+		$this->load->helper('string');
 		$this->load->library('curl');
+		$this->client = new \GuzzleHttp\Client(['verify' => false , 'http_errors' => false]);
+		$this->url_api = 'https://dev.mydiosing.com/mydio'; // untuk dev, besok dicomment
+
 		$this->load->model('M_general', 'general');
 		$this->bhs = $this->uri->segment(1);
 		if ($this->bhs=='en') {
              $this->lang->load($this->bhs, 'custom');
              $this->url = 'en';
-           }else{
+		}else{
              $this->lang->load('id', 'custom');
              $this->bhs= 'id';
              $this->url= '';
@@ -29,6 +32,8 @@ class Home extends CI_Controller {
 
 	public function index()
 	{
+		$this->load->library('google'); 
+		$linkOuthGoogle = $this->google->createAuthUrl();
 		$headers =  getallheaders();
 		$datasaver = false;
 		foreach($headers as $key=>$val){
@@ -38,18 +43,10 @@ class Home extends CI_Controller {
 		}
 		$this->load->library('user_agent');
 		$data['url'] = $this->url;
-		$data['berita'] = $this->general->recentNews()->row_array();
+		// $data['berita'] = $this->general->recentNews()->row_array();
 		$data['bahasa'] = $this->myDioLang('en', '');
 		$data['mobile'] = ($this->agent->is_mobile() == true) ? true:false;
 		$data['datasaver'] = $datasaver;
-
-		$param = [
-			'action' => 'today'
-		];
-
-		$dataBannerSlider = $this->curl->simple_get('https://mydiosing.com:8843/mydio/Banner?'.http_build_query($param));
-
-		$data['banner_slider'] = json_decode($dataBannerSlider, true);
 
 		// if (!$this->session->has_userdata('memberLogin')) {
 		// 	$data['like_exist'] = 0;
@@ -65,7 +62,68 @@ class Home extends CI_Controller {
 		// 	}
 		// }
 
-		$this->load->view('index', $data);
+		$ipAddress = $this->input->ip_address();
+		// $ipAddress = '114.124.201.112';
+		
+		// $param = [
+		// 	'action' => 'today',
+		// 	'remoteIpAddr' => $ipAddress
+		// ];
+		// $dataBannerSlider = $this->curl->simple_get(''.$this->url_api.'/Banner?'.http_build_query($param));
+		// $data['banner_slider'] = json_decode($dataBannerSlider, true);
+
+		$dataBannerSlider = $this->curl->simple_get(''.$this->url_api.'/Banner?action=today&remoteIpAddr='.$ipAddress.'');
+		$data['banner_slider'] = json_decode($dataBannerSlider, true);
+
+		// $this->load->library('mydio');
+		
+		// $featured = array(
+		// 	'type' => 'featured',
+		// 	'query' => '',
+		// 	'offset' => 0,
+		// 	'limit' => 10
+		// );
+		// $featured = $this->mydio->qsong($featured);
+		
+		// $newsong = array(
+		// 	'type' => 'newsong',
+		// 	'query' => '',
+		// 	'offset' => 0,
+		// 	'limit' => 10
+		// );
+		// $newsong = $this->mydio->qsong($newsong);
+		
+		// $mostrecent = array(
+		// 	'type' => 'mostrecent',
+		// 	'query' => '',
+		// 	'offset' => 0,
+		// 	'limit' => 10
+		// );
+		// $mostrecent = $this->mydio->qsong($mostrecent);
+		
+		// $karafie = array(
+		// 	'type' => 'karafie',
+		// 	'query' => '',
+		// 	'offset' => 0,
+		// 	'limit' => 12
+		// );
+		// $karafie = $this->mydio->song($karafie);
+		
+		// $karaclip = array(
+		// 	'type' => 'karaclip',
+		// 	'query' => '',
+		// 	'offset' => 0,
+		// 	'limit' => 12
+		// );
+		// $karaclip = $this->mydio->song($karaclip);
+		
+		// $this->output->cache(5);
+		
+		$this->load->view('header');
+		$this->load->view('index', compact('data', 'linkOuthGoogle'));
+
+		$showScrollTop = true;
+		$this->load->view('footer', compact('showScrollTop'));
 	}
 
 	public function myDioLang($en, $id)
@@ -89,6 +147,8 @@ class Home extends CI_Controller {
 		$data['featured'] = $this->general->newsFeatured($lang);
 		$data['list'] = $this->general->newsListing($lang);
 		$data['lang'] = $lang;
+		
+		// $this->output->cache(60);
 		$this->load->view('news', $data);
 	}
 
@@ -112,6 +172,8 @@ class Home extends CI_Controller {
 		$data['bahasa'] = $this->myDioLang('en/all/karafie', 'all/karafie');
 		$data['type'] = $type;
 		$data['data'] = $this->mydio->song($param);
+		
+		// $this->output->cache(60);
 		$this->load->view('karafie', $data);
 	}
 
@@ -130,7 +192,7 @@ class Home extends CI_Controller {
 		$html = '';
 		foreach ($data['array'] as $key => $value) {
 			$html.= '<div class="col-md-3 col-xs-6 border-carafie" 
-			onClick="mydiosingplay(\''.$value['urlM3U8'].'\', \''.$value['title'].'\')">
+			onClick="mydiosingplay(\''.$value['urlM3U8'].'\', \''.str_replace(array("\r\n","'"), array(" ","`"), $value['title']).'\')">
 				<div class="row">
                     <div class="col-md-12 no-padding">
                         <div class="dummy"></div>
@@ -181,78 +243,71 @@ class Home extends CI_Controller {
 		$data['url'] = $this->url;
 		$data['bahasa'] = $this->myDioLang('en/all/recommended', 'all/recommended');
 		$data['data'] = $this->mydio->qsong($trending);
+		
+		// $this->output->cache(60);
 		$this->load->view('trending', $data);
 	}
 
 	public function lazyRecord()
 	{
 		$this->load->library('mydio');
+		
 		$type = $this->uri->segment(2);
+		$type_origin = $this->uri->segment(2);
+
+		$limit = $this->input->get('limit');
+		$start = $this->input->get('start');
 		
 		$param = array(
 			'type' => $type,
 			'query' => '',
-			'offset' => 0,
-			'limit' => 15
+			'offset' => $start,
+			'limit' => $limit
 		);
 		
 		$record = $this->mydio->song($param);
-		
+
 		$break_after = 3;
 		$break_after_second = 9;
 		$counter = 0;
 		$html = '';
 		foreach ($record['array'] as $key => $value) {
 			
-			// $hide = '';
-			// if ($key == 4) {
-			// 	$hide = 'hide';
-			// }
-
-			// if ($counter % $break_after == 0) {
-				
-			// 	if ($counter % $break_after_second) {
-			// 		$html.='<div class="row b">';
-			// 	} else {
-			// 		$html.='<div class="row a">';
-			// 	}
-			// }
-
-		 	if ($counter % $break_after == 0) {
+			if ($counter % $break_after == 0) {
 				if ($counter == 0) {
 					$class_item = "gallery";
-			        $html.='<div class="gallery">';
-			    } else {
-			    	if ($counter % $break_after_second == 0) {
-			    		$class_item = "gallery3";
-			    		$html.='<div class="gallery3">';
-			    	} else {
-			    		$class_item = "gallery2";
-			    		$html.='<div class="gallery2">';
-			    	}
-			    }
+					$html.='<div class="gallery">';
+				} else {
+					if ($counter % $break_after_second == 0) {
+						$class_item = "gallery3";
+						$html.='<div class="gallery3">';
+					} else {
+						$class_item = "gallery2";
+						$html.='<div class="gallery2">';
+					}
+				}
 			}
 
 			$number = ($counter % $break_after) + 1;
-			    
-            $html .='
-        	<figure class="'.$class_item.'__item--'.$number.'" onClick="mydiosingplay(\''.$value['urlM3U8'].'\', \''.$value['title'].'\')">
-                <img src="'.$value['urlPoster'].'" class="gallery__img">
-            </figure>
-            <p class="'.$class_item.'__icon--'.$number.'">
-            	<i class="fa fa-video-camera text-white" aria-hidden="true"></i>
-            </p>
-            ';
+				
+			$html .='
+			<figure class="'.$class_item.'__item--'.$number.' data-'.$type_origin.'" onClick="mydiosingplay(\''.$value['urlM3U8'].'\', \''.str_replace(array("\r\n","'"), array(" ","`"), $value['title']).'\')">
+				<img src="'.$value['urlPoster'].'" class="gallery__img" songnumber="'.$type.'-'.$key.'">
+			</figure>
+			<p class="'.$class_item.'__icon--'.$number.'">
+				<i class="fa fa-video-camera text-white" aria-hidden="true"></i>
+			</p>
+			';
 
 			if ($counter % $break_after == ($break_after-1)) {
-		        $html.='</div>';
-		    }
+				$html.='</div>';
+			}
 
-		    ++$counter;
+			++$counter;
 		}
 
 		if ((($counter-1) % $break_after) != ($break_after-1)) {
-		    $html.='</div>';
+			$html.='</div>';
 		}
 
 		echo $html;
@@ -261,62 +316,68 @@ class Home extends CI_Controller {
 	public function lazyClip()
 	{
 		$this->load->library('mydio');
+		
 		$type = $this->uri->segment(2);
+		$type_origin = $this->uri->segment(2);
+
+		$limit = $this->input->get('limit');
+		$start = $this->input->get('start');
 
 		$param = array(
 			'type' => $type,
 			'query' => '',
-			'offset' => 0,
-			'limit' => 15
+			'offset' => $start,
+			'limit' => $limit
 		);
 
 		$record = $this->mydio->song($param);
-		
+
 		$break_after = 3;
 		$break_after_second = 9;
 		$counter = 0;
 		$html = '';
 		foreach ($record['array'] as $key => $value) {
-			// $hide = '';
-			// if ($key == 4) {
-			// 	$hide = 'hide';
-			// }
-			
-            if ($counter % $break_after == 0) {
+			if ($counter % $break_after == 0) {
 				if ($counter == 0) {
 					$class_item = "gallery";
-			        $html.='<div class="gallery">';
-			    } else {
-			    	if ($counter % $break_after_second == 0) {
-			    		$class_item = "gallery3";
-			    		$html.='<div class="gallery3">';
-			    	} else {
-			    		$class_item = "gallery2";
-			    		$html.='<div class="gallery2">';
-			    	}
-			    }
+					$html.='<div class="gallery">';
+				} else {
+					if ($counter % $break_after_second == 0) {
+						$class_item = "gallery3";
+						$html.='<div class="gallery3">';
+					} else {
+						$class_item = "gallery2";
+						$html.='<div class="gallery2">';
+					}
+				}
+			}
+
+			if($value['urlRecordingAudio'] != null){
+				$uri = $value['urlRecordingAudio'];
+			}else{
+				$uri = $value['urlM3U8'];
 			}
 
 			$number = ($counter % $break_after) + 1;
-			    
-            $html .='
-        	<figure class="'.$class_item.'__item--'.$number.'" onClick="mydioclip(\''.$value['urlM3U8'].'\', \''.$value['title'].'\', \''.$value['recordingId'].'\')">
-                <img src="'.$value['urlPoster'].'" class="gallery__img">
-            </figure>
-            <p class="'.$class_item.'__icon--'.$number.'">
-            	<i class="fa fa-video-camera text-white" aria-hidden="true"></i>
-            </p>
-            ';
+			
+			$html .='
+			<figure class="'.$class_item.'__item--'.$number.' data-'.$type_origin.'" onClick="mydioclip(\''.$uri.'\', \''.str_replace(array("\r\n","'"), array(" ","`"), $value['title']).'\', \''.$value['recordingId'].'\', \''.$value['urlPoster'].'\')" songnumber="'.$type.'-'.$key.'">
+				<img src="'.$value['urlPoster'].'" class="gallery__img">
+			</figure>
+			<p class="'.$class_item.'__icon--'.$number.'">
+				<i class="fa fa-video-camera text-white" aria-hidden="true"></i>
+			</p>
+			';
 
 			if ($counter % $break_after == ($break_after-1)) {
-		        $html.='</div>';
-		    }
+				$html.='</div>';
+			}
 
-		    ++$counter;
+			++$counter;
 		}
 
 		if ((($counter-1) % $break_after) != ($break_after-1)) {
-		    $html.='</div>';
+			$html.='</div>';
 		}
 
 		echo $html;
@@ -325,6 +386,18 @@ class Home extends CI_Controller {
 	public function lazy()
 	{
 		$type = $this->uri->segment(2);
+		$type_origin = $this->uri->segment(2);
+
+		// $get_last_number = $this->input->get('last_items');
+		// if($get_last_number){
+		// 	$offset = $get_last_number;
+		// } else {
+		// 	$offset = 0;
+		// }
+
+		$limit = $this->input->get('limit');
+		$start = $this->input->get('start');
+
 		switch ($type) {
 			case 'trending':
 				$type = 'mostrecent';
@@ -340,15 +413,23 @@ class Home extends CI_Controller {
 				break;
 		}
 
-		$this->load->library('mydio');
-		$recomeded = array(
-			'type' => $type,
-			'query' => '',
-			'offset' => 0,
-			'limit' => 10
-		);
+		// $this->load->library('mydio');
 
-		$recomended = $this->mydio->qsong($recomeded);
+		$ipAddress = $this->input->ip_address();
+		// $ipAddress = '114.124.201.112';
+
+		// $recomeded = array(
+		// 	'type' => $type,
+		// 	'query' => '',
+		// 	'offset' => $offset,
+		// 	'limit' => 10,
+		// 	'remoteIpAddr' => $ipAddress
+		// );
+
+		// $recomended = $this->mydio->qsong($recomeded);
+
+		$data = $this->curl->simple_get(''.$this->url_api.'/QuerySong?type='.$type.'&query=&offset='.$start.'&limit='.$limit.'&remoteIpAddr='.$ipAddress.'');
+		$recomended = json_decode($data, true);
 		
 		$html = '';
 		foreach ($recomended['array'] as $key => $value){
@@ -363,49 +444,74 @@ class Home extends CI_Controller {
 				$border = '';
 			}
 
-			$this->db->where('video_id', $value['songId']);
-			$countLikeDatabase = $this->db->get('video_like')->num_rows();
+			// $this->db->where('video_id', $value['songId']);
+			// $countLikeDatabase = $this->db->get('video_like')->num_rows();
 
-			if($countLikeDatabase > 0){
-				$likeNumber = ($value['like']+$countLikeDatabase);
-			} else {
-				$likeNumber = $value['like'];
-			}
+			// if($countLikeDatabase > 0){
+			// 	$likeNumber = ($value['like']+$countLikeDatabase);
+			// } else {
+			// 	$likeNumber = $value['like'];
+			// }
+
+			$exist_liked = 0;
+
+           	// if ($this->session->has_userdata('memberLogin')) {
+            //     $exist_liked = 0;
+            // } else {
+            //     $reqTime = date('YmdHis');
+
+            //     $params = [
+            //         'type' => 'status',
+            //         'id' => $value['songId'],
+            //         'sessionId' => $this->session->userdata('sessionId'),
+            //         'reqTime' => $reqTime,
+            //         'sig' => genSignature($reqTime, $this->session->userdata('salt'))
+            //     ];
+
+            //     $api_likestatus = $this->curl->simple_get(''.$this->url_api.'/Like?' . http_build_query($params));
+
+            //     $likeStatus = json_decode($api_likestatus, true);
+
+            //     if($likeStatus['islike'] == 1){
+            //         $exist_liked = 1;
+            //     } else {
+            //         $exist_liked = 0;
+            //     }
+            // }
 
 			$html .= '
-			<div class="row py-2" onClick="mydiolimit(\''.$value['urlHls'].'\', \''.$value['title'].'\', \''.$value['artist'].'\', \''.$value['poster'].'\', \''.$value['song'].'\', \''.$value['songId'].'\')" '.$border.'>
-                <div class="col-4">
-                    <div style="width: 100%; height: 76px; background-image: url(\''.$value['poster'].'\'); background-position: top; background-size: cover; background-repeat: no-repeat; border-radius: 5px;">
-                        <img class="play-icon" src="'.base_url('assets/images/play_video.png').'">
-                    </div>
-                </div>
-                <div class="col-8 pl-0">
-                    <div class="row">
-                        <div class="col-12 title-artist">
-                            <span class="title"><b>'.$value['title'].'</b></span>
-                            <br/>
-                            <span class="artist">'.$value['artist'].'</span>
-                        </div>
-                    </div>
-                    <div class="row" style="margin-top: 4px;">
-                        <div class="col-4 pr-0">
-                            <span class="align-middle" style="font-size: 12px;">
-                                <img class="info-icon" src="'.base_url('assets/images/view.png').'">&nbsp;&nbsp;'.$value['view'].'
-                            </span>                                
-                        </div>
-                        <div class="col-4 pr-0">
-                            <span class="align-middle" style="font-size: 12px;">
-                                <img class="info-icon" src="'.base_url('assets/images/love.png').'">&nbsp;&nbsp;<span id="like-'.$value['songId'].'">'.$likeNumber.'</span>
-                            </span>
-                        </div>
-                        <div class="col-4 pr-0">
-                            <span class="align-middle" style="font-size: 12px;">
-                                <img class="info-icon" src="'.base_url('assets/images/record.png').'">&nbsp;&nbsp;'.$value['rec'].'
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+			<div class="row py-2 data-'.$type_origin.'" onClick="mydiolimit(\''.$value['urlHls'].'\', \''.str_replace(array("\r\n","'"), array(" ","`"), $value['title']).'\', \''.$value['artist'].'\', \''.$value['poster'].'\', \''.$value['song'].'\', \''.$value['songId'].'\')" '.$border.' video-liked="'.$exist_liked.'" songnumber="'.$type.'-'.$key.'">
+				<div class="col-4">
+					<img class="poster-video" src="'.$value['poster'].'" />
+					<img id="play-icon-'.$value['songId'].'" class="play-icon" src="'.base_url('assets/images/play_video.svg').'">
+				</div>
+				<div class="col-8 pl-0">
+					<div class="row">
+						<div class="col-12 title-artist">
+							<span class="title">'.$value['title'].'</span>
+							<br/>
+							<span class="artist">'.$value['artist'].'</span>
+						</div>
+					</div>
+					<div class="row mt-1">
+						<div class="col-4 pr-0">
+							<span class="align-middle" style="font-size: 12px;">
+								<img class="info-icon" src="'.base_url('assets/images/telkom/ic_view.svg').'">&nbsp;&nbsp;'.$value['view'].'
+							</span>                                
+						</div>
+						<div class="col-4 pr-0">
+							<span class="align-middle" style="font-size: 12px;">
+								<img class="info-icon" src="'.base_url('assets/images/telkom/ic_love.svg').'">&nbsp;&nbsp;<span id="like-'.$value['songId'].'">'.$value['like'].'</span>
+							</span>
+						</div>
+						<div class="col-4 pr-0">
+							<span class="align-middle" style="font-size: 12px;">
+								<img class="info-icon" src="'.base_url('assets/images/telkom/ic_recoding_view.svg').'">&nbsp;&nbsp;'.$value['rec'].'
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
 			';
 
             // $html.= '
@@ -426,7 +532,8 @@ class Home extends CI_Controller {
             //     </div>
             // </div>';
         }
-        echo $html;
+		
+		echo $html;
 	}
 
 	public function trending()
@@ -445,7 +552,7 @@ class Home extends CI_Controller {
 		foreach ($data['array'] as $key => $value) {
 			$html.= '
 			<div class="col-md-3 col-xs-6 border-carafie" onClick="
-                    mydiolimit(\''.$value['song'].'\', \''.$value['title'].'\')" data-url="'.$value['urlHls'].'" data-title="'.$value['title'].'" data-artis="'.$value['artist'].'">
+                    mydiolimit(\''.$value['song'].'\', \''.str_replace(array("\r\n","'"), array(" ","`"), $value['title']).'\')" data-url="'.$value['urlHls'].'" data-title="'.$value['title'].'" data-artis="'.$value['artist'].'">
                 <div class="row">
                     <div class="col-md-12 no-padding">
                         <div class="dummy"></div>
@@ -469,6 +576,8 @@ class Home extends CI_Controller {
 		$data['title'] = $this->lang->line('About');
 		$data['url'] = $this->url;
 		$data['bahasa'] = $this->myDioLang('en/about', 'about');
+		
+		// $this->output->cache(60);
 		$this->load->view('about', $data);
 	}
 	public function tos()
@@ -476,6 +585,8 @@ class Home extends CI_Controller {
 		$data['title'] = $this->lang->line('Terms Of Service');
 		$data['url'] = $this->url;
 		$data['bahasa'] = $this->myDioLang('en/tos', 'tos');
+		
+		// $this->output->cache(60);
 		$this->load->view('tos', $data);
 	}
 	public function privacy()
@@ -483,6 +594,8 @@ class Home extends CI_Controller {
 		$data['title'] = $this->lang->line('Privacy');
 		$data['url'] = $this->url;
 		$data['bahasa'] = $this->myDioLang('en/privacy', 'privacy');
+		
+		// $this->output->cache(60);
 		$this->load->view('privacy', $data);
 	}
 	public function contact()
@@ -490,6 +603,7 @@ class Home extends CI_Controller {
 		$data['title'] = $this->lang->line('Contact Us');
 		$data['url'] = $this->url;
 		$data['bahasa'] = $this->myDioLang('en/contact', 'contact');
+		// $this->output->cache(60);
 		$this->load->view('contact', $data);
 	}
 	//end of statis page
@@ -542,6 +656,7 @@ class Home extends CI_Controller {
 		$data['url'] = $this->url;
 		$data['berita'] = $this->general->edit('z_artikel', $con)->row_array();
 		$data['title'] = $data['berita']['judul'];
+		// $this->output->cache(60);
 		$this->load->view('detailnews', $data);
 	}
 	
@@ -587,6 +702,7 @@ class Home extends CI_Controller {
 		$data['url'] = $this->url;
 		$data['type'] = 'youTube';
 		$data['youtubes'] = $this->general->youtube()->result_array();
+		// $this->output->cache(60);
 		$this->load->view('youtube', $data);
 	}
 
@@ -607,6 +723,7 @@ class Home extends CI_Controller {
 		$data['type'] = $this->input->get('type', TRUE);
 		$data['url'] = $this->url;
 		$data['bahasa'] = $this->myDioLang('en', '');
+		// $this->output->cache(60);
 		$this->load->view('search', $data);
 	}
 
@@ -628,7 +745,7 @@ class Home extends CI_Controller {
 			}
             $html.= '
             <div class="col-md-3 col-6 border-carafie" onClick="
-                                mydiolimit(\''.$value['urlHls'].'\', \''.$value['title'].'\', \''.$value['artist'].'\')" data-url="'.$value['urlHls'].'" data-title="'.$value['title'].'" data-artis="'.$value['artist'].'">
+                                mydiolimit(\''.$value['urlHls'].'\', \''.str_replace(array("\r\n","'"), array(" ","`"), $value['title']).'\', \''.$value['artist'].'\')" data-url="'.$value['urlHls'].'" data-title="'.$value['title'].'" data-artis="'.$value['artist'].'">
                 <div class="row">
                     <div class="col-md-12 no-padding">
                         <div class="dummy"></div>
@@ -669,7 +786,7 @@ class Home extends CI_Controller {
 				$value['poster'] = base_url('uploads/default.png');
 			}
             $html.= '
-            <div class="col-md-3 col-6 border-carafie" onClick="mydiolimit(\''.$value['urlHls'].'\', \''.$value['title'].'\', \''.$value['artist'].'\')" data-url="'.$value['urlHls'].'" data-title="'.$value['title'].'" data-artis="'.$value['artist'].'">
+            <div class="col-md-3 col-6 border-carafie" onClick="mydiolimit(\''.$value['urlHls'].'\', \''.str_replace(array("\r\n","'"), array(" ","`"), $value['title']).'\', \''.$value['artist'].'\')" data-url="'.$value['urlHls'].'" data-title="'.$value['title'].'" data-artis="'.$value['artist'].'">
                 <div class="row">
                     <div class="col-md-12 no-padding">
                         <div class="dummy"></div>
@@ -746,7 +863,7 @@ class Home extends CI_Controller {
 			'type' => 'karaclip',
 			'query' => '',
 			'offset' => 0,
-			'limit' => 50
+			'limit' => 10
 		);
 		$data = $this->mydio->song($param);
 		$res = $this->customSearch($this->input->get('query', true), $data['array']);
@@ -756,7 +873,7 @@ class Home extends CI_Controller {
 			for($i = 0; $i<count($res); $i++)
 			{
 				$html.= '<div class="col-md-3 col-xs-6 border-carafie" 
-				onClick="mydiosingplay(\''.$value[$res[$i]]['urlM3U8'].'\', \''.$value[$res[$i]]['title'].'\')">
+				onClick="mydiosingplay(\''.$value[$res[$i]]['urlM3U8'].'\', \''.str_replace(array("\r\n","'"), array(" ","`"), $value[$res[$i]]['title']).'\')">
 					<div class="row">
 	                    <div class="col-md-12 no-padding">
 	                        <div class="dummy"></div>
@@ -765,7 +882,7 @@ class Home extends CI_Controller {
 	                    </div>
 	                    <div class="row margin-title">
 	                        <div class="col-md-12">
-	                            <p class="title">'.$value[$res[$i]]['title'].'</p>
+	                            <p class="title">'.str_replace(array("\r\n","'"), array(" ","`"), $value[$res[$i]]['title']).'</p>
 	                            <span class="like"><i class="fa fa-headphones"></i> '.$value[$res[$i]]['countListen'].'</span> <span class="like"><i class="fa fa-heart"></i> '.$value[$res[$i]]['countLike'].'</span>
 	                        </div>
 	                    </div>
@@ -804,45 +921,92 @@ class Home extends CI_Controller {
 	}
 
 	public function likevideo(){
-		if ($this->session->has_userdata('memberLogin')) {
-			$this->db->where('user_id', $this->input->post('userId'));
-		} else {			
-			$this->db->where('ip_address', $this->input->post('userId'));
+		// if ($this->session->has_userdata('memberLogin')) {
+		// 	$this->db->where('user_id', $this->input->post('userId'));
+		// 	$fielduser = "user_id";
+		// } else {			
+		// 	$this->db->where('ip_address', $this->input->post('userId'));
+		// 	$fielduser = "ip_address";
+		// }
+
+		// $this->db->where('video_id', $this->input->post('videoId'));
+		// $checkUser = $this->db->get('video_like')->num_rows();
+
+		// if($checkUser < 1){
+
+		// 	$data = array(
+		// 	    'video_id' => $this->input->post('videoId'),
+		// 	    ''.$fielduser.'' => $this->input->post('userId'),
+		// 	    'created_at' => date('Y-m-d H:i:s')
+		// 	);
+
+		// 	$this->db->insert('video_like', $data);
+
+		// 	$status = 200;
+		// 	$message = 'Video successfully liked';
+		// } else {
+		// 	$status = 400;
+		// 	$message = 'An Error Has Occurred With Your Internet Connection';
+		// }
+
+		// $this->db->where('video_id', $this->input->post('videoId'));
+		// $countLikeDatabase = $this->db->get('video_like')->num_rows();
+
+
+		$reqTime = date('YmdHis');
+
+		$status = $this->input->post('status');
+
+		if($status == "0"){
+			$params = [
+				'type' => 'recording',
+				'id' => $this->input->post('videoId'),
+				'sessionId' => $this->session->userdata('sessionId'),
+				'reqTime' => $reqTime,
+				'sig' => genSignature($reqTime, $this->session->userdata('salt'))
+			];
+		}else{
+				$params = [
+					'type' => 'recording',
+					'unlike' => '1',
+					'id' => $this->input->post('videoId'),
+					'sessionId' => $this->session->userdata('sessionId'),
+					'reqTime' => $reqTime,
+					'sig' => genSignature($reqTime, $this->session->userdata('salt'))
+				];
 		}
 
-		$this->db->where('video_id', $this->input->post('videoId'));
-		$checkUser = $this->db->get('video_like')->num_rows();
+		$api_like = $this->curl->simple_get(''.$this->url_api.'/Like?' . http_build_query($params));
 
-		if($checkUser < 1){
+		$like = json_decode($api_like, true);
 
-			if ($this->input->post('loginStatus') == 0){
-				$fielduser = "ip_address";
+		if(!empty($like)){
+			if($like['countLike'] == -1){
+				$status = 400;
+				$message = "Unsuccessfully liked";
 			} else {
-				$fielduser = "user_id";
+				$status = 200;
+				$message = "Successfully liked";
 			}
-
-			$data = array(
-			    'video_id' => $this->input->post('videoId'),
-			    ''.$fielduser.'' => $this->input->post('userId'),
-			    'created_at' => date('Y-m-d H:i:s')
-			);
-
-			$this->db->insert('video_like', $data);
-
-			$status = 200;
-			$message = 'Video successfully liked';
 		} else {
 			$status = 400;
-			$message = 'An Error Has Occurred With Your Internet Connection';
+			$message = "Unsuccessfully liked";
 		}
 
-		$this->db->where('video_id', $this->input->post('videoId'));
-		$countLikeDatabase = $this->db->get('video_like')->num_rows();
+		$params_song = [
+			'type' => 'extrainfo',
+			'songId' => $this->input->post('videoId'),
+			'sessionId' => $this->session->userdata('sessionId')
+		];
+
+		$api_song_extrainfo = $this->curl->simple_get(''.$this->url_api.'/QuerySong?' . http_build_query($params_song));
+
+		$song_extrainfo = json_decode($api_song_extrainfo, true);
 
 		$return = [
-			'status' => $status,
-			'message' => $message,
-			'likeFromDatabase' => $countLikeDatabase,
+			"status" => $status,
+			"message" => $message,
+			"likeFromDatabase" => $song_extrainfo['countLike']
 		];
 
 		header('Content-Type: application/json');
@@ -851,23 +1015,54 @@ class Home extends CI_Controller {
 
 	public function checkLikeVideo()
 	{
-		if ($this->input->post('loginStatus') == 0){
-			$this->db->where('ip_address', $this->input->ip_address());
-		} else {
-			$this->db->where('user_id', $this->$this->session->userdata('userId'));
-		}
+		// if ($this->session->has_userdata('memberLogin')) {
+		// 	$this->db->where('user_id', $this->session->userdata('userId'));			
+		// } else {
+		// 	$this->db->where('ip_address', $this->input->ip_address());
+		// }
 
-		$this->db->where('video_id', $this->input->post('videoID'));
-		$checkUser = $this->db->get('video_like')->num_rows();
+		// $this->db->where('video_id', $this->input->post('videoID'));
+		// $checkUser = $this->db->get('video_like')->num_rows();
 
-		if($checkUser > 0){
+		// if($checkUser > 0){
+		// 	$exist = true;
+		// } else {
+		// 	$exist = false;
+		// }
+
+		// $return = [
+		// 	'exist' => $exist
+		// ];
+
+		if ($this->session->has_userdata('memberLogin')) {
+            $status_login = "sudah";
+        } else {
+            $status_login = "belum";
+        }
+
+		$reqTime = date('YmdHis');
+
+		$params = [
+			'type' => 'status',
+			'id' => $this->input->post('videoID'),
+			'sessionId' => $this->session->userdata('sessionId'),
+			'reqTime' => $reqTime,
+			'sig' => genSignature($reqTime, $this->session->userdata('salt'))
+		];
+
+		$api_likestatus = $this->curl->simple_get(''.$this->url_api.'/Like?' . http_build_query($params));
+
+		$likeStatus = json_decode($api_likestatus, true);
+
+		if($likeStatus['islike'] == 1){
 			$exist = true;
 		} else {
 			$exist = false;
 		}
 
 		$return = [
-			'exist' => $exist
+			'exist' => $exist,
+			'status_login' => $status_login
 		];
 
 		header('Content-Type: application/json');

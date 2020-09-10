@@ -7,10 +7,11 @@ class Setting extends CI_Controller {
 	{
 		parent::__construct();
 
-		if (!$this->session->has_userdata('memberLogin')) {
-			redirect('login','refresh');
-		}
-		
+		// if (!$this->session->has_userdata('memberLogin')) {
+		// 	redirect('login','refresh');
+		// }
+		$this->client = new \GuzzleHttp\Client(['verify' => false , 'http_errors' => false]);
+		$this->url_api = 'https://dev.mydiosing.com/mydio'; // untuk dev, besok dicomment
 		$this->load->helper('html');
 		$this->load->helper('string');
 	}

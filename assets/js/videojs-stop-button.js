@@ -76,7 +76,7 @@ var stopButton = function stopButton(options) {
 };
 
 _videoJs2['default'].registerComponent('StopButton', StopButtonToggle);
-_videoJs2['default'].plugin('stopButton', stopButton);
+_videoJs2['default'].registerPlugin('stopButton', stopButton);
 
 stopButton.VERSION = '0.0.0';
 

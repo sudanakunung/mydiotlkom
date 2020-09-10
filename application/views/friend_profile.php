@@ -54,7 +54,9 @@
         margin-top: 3px;
     }
 
-    .custom.btn.btn-outline-primary{
+    .custom.btn.btn-outline-primary,
+    .custom.btn.btn-outline-primary:active,
+    .custom.btn.btn-outline-primary:focus{
         font-size: small;
         padding: 5px;
         color: rgba(24,16,73,1);
@@ -66,11 +68,81 @@
         color: #000;
     }
 
-    .custom.btn.btn-primary{
+    .custom.btn.btn-primary,
+    .custom.btn.btn-primary:active,
+    .custom.btn.btn-primary:focus{
         background-color: rgba(24,16,73,1);
         border: solid 2px rgba(24,16,73,1);
         font-size: small;
         padding: 5px;
+    }
+    .friend-profile{
+        border: 2px #000 solid;
+        width: 100%;
+    }
+    .user-profile{
+        width: 100%;
+        object-fit: cover;
+    }
+
+    @media only screen and (max-width: 768px) {
+        .friend-profile{
+            height: 105px;
+            object-fit: cover;
+        }
+        .user-profile{
+            height: 150px;
+        }
+    }
+
+    @media only screen and (max-width: 414px) {
+        .friend-profile{
+            height: 54px;
+            object-fit: cover;
+        }
+        .user-profile{
+            height: 73.5px;
+        }
+    }
+
+    @media only screen and (max-width: 411px) {
+        .friend-profile{
+            height: 53.5px;
+            object-fit: cover;
+        }
+        .user-profile{
+            height: 72.75px;
+        }
+    }
+
+    @media only screen and (max-width: 375px) {
+        .friend-profile{
+            height: 47.5px;
+            object-fit: cover;
+        }
+        .user-profile{
+            height: 63.75px;
+        }
+    }
+
+    @media only screen and (max-width: 360px) {
+        .friend-profile{
+            height: 45px;
+            object-fit: cover;
+        }
+        .user-profile{
+            height: 60px;
+        }
+    }
+
+    @media only screen and (max-width: 320px) {
+        .friend-profile{
+            height: 38.33px;
+            object-fit: cover;
+        }
+        .user-profile{
+            height: 50px;
+        }
     }
 </style>
 
@@ -78,65 +150,64 @@
     <div class="row justify-content-center py-4">
         <div class="col-3">
             <?php
-            if(!empty($user['image_profile'])) {
-                $src_profile_img = base_url('uploads/profile/').$user['image_profile'];
+            if(!empty($user['urlPP']) || $user['urlPP'] != null) {
+                if($data = @getimagesize($user['urlPP'])){
+                    $src_profile_img = $user['urlPP'];
+                }else{
+                    $src_profile_img = base_url('assets/images/profile.png');
+                }
             } else {
-                $src_profile_img = base_url('assets/images/profile_active.png');
+                $src_profile_img = base_url('assets/images/profile.png');
             }
             ?>
-            <img class="img-fluid" src="<?= $src_profile_img; ?>">
-            <p class="text-center mt-4 mb-0">
-                <span class="font-weight-bold"><?= $user['name']; ?></span>
-                <br />
-                <small><?= $user['my_mood']; ?></small>
-            </p>
+            <img class="user-profile rounded-circle" src="<?= $src_profile_img; ?>">
         </div>
         <div class="col-8 text-center">
             <div class="row">
                 <div class="col-4 pl-0">
-                    <span class="font-weight-bold">0</span>
+                    <span class="font-weight-bold"><?= $user['recording']; ?></span>
                     <br />
                     <small>Post</small>
                 </div>
                 <div class="col-4 pl-0">
-                    <span class="font-weight-bold"><?= $count_followers; ?></span>
+                    <span class="font-weight-bold"><?= $user['follower']; ?></span>
                     <br />
                     <small>Followers</small>
                 </div>
                 <div class="col-4 pl-0">
-                    <span class="font-weight-bold"><?= $count_following; ?></span>
+                    <span class="font-weight-bold"><?= $user['following']; ?></span>
                     <br />
                     <small>Following</small>
                 </div>
             </div>
+        </div>
+        <div class="col-12">
+            <p class="mt-3 mb-0">
+                <span class="font-weight-bold"><?= $user['name']; ?></span>
+            </p>
         </div>
     </div>
 
     <div class="row justify-content-center">
         <div class="col">
             <?php
-			if($this->session->has_userdata('memberLogin')){
-				if($count_follow_exist > 0){ ?>
-					<button class="custom btn btn-outline-primary form-control follow-friend" status-follow="1">
-						Unfollow
-					</button>
-				<?php
-				} else { ?>
-					<button class="custom btn btn-primary form-control follow-friend" status-follow="0">
-						Follow
-					</button>
-				<?php
-				}
-			} else { ?>
-				<a href="<?= base_url('login'); ?>" class="custom btn btn-primary form-control">
+            if($isfollowing['isFollowing'] == 0){ ?>
+                <button id="follow-<?= $user['userId']; ?>" class="custom btn btn-primary form-control follow-friend" status-follow="0" friend-id="<?= $user['userId']; ?>">
                     Follow
-                </a>
-			<?php
-			}
+                </button>
+            <?php
+            } else { ?>
+                <button id="follow-<?= $user['userId']; ?>" class="custom btn btn-outline-primary form-control follow-friend" status-follow="1" friend-id="<?= $user['userId']; ?>">
+                    Unfollow
+                </button>
+            <?php
+            }
             ?>
         </div>
         <div class="col">
-            <a href="<?= base_url('messenger/chat/'.$user['id'].''); ?>" class="custom btn btn-outline-primary form-control">Message</a>
+            <!-- <a href="<?= base_url('messenger/chat/'.$user['id'].''); ?>" class="custom btn btn-outline-primary form-control">Message</a> -->
+
+            <a data-toggle="modal" data-target="#exampleModal5" href="Javascript.void(0)" class="custom btn btn-outline-primary form-control">Message</a>
         </div>
     </div>
     
@@ -162,77 +233,82 @@
 
         <div class="tab-content pt-3" id="nav-tabContent">
             <div class="tab-pane fade show active" id="nav-library" role="tabpanel" aria-labelledby="nav-library-tab">
-                <div class="col-12 text-center">
-                    Data is still empty
+                <div class="container p-0">
+                    <?php 
+                    if($recording['total'] == 0 ){
+                        echo "<div class=\"text-center\"><p>Data is still empty</p></div>";
+                    } else {
+                        $break_after = 3;
+                        $counter = 0;
+                        foreach ($recording['array'] as $re) {
+
+                            if ($counter % $break_after == 0) {
+                                $html.='<div class="gallery2">';
+                            }
+
+                            $number = ($counter % $break_after) + 1;
+
+                            $html .='
+                            <figure class="gallery2__item--'.$number.'" onClick="mydioclip(\''.$re['urlM3U8'].'\', \''.$re['title'].'\', \''.$re['recordingId'].'\')">
+                                <img src="'.$re['urlPoster'].'" class="gallery__img">
+                            </figure>
+                            <p class="gallery2__icon--'.$number.'">
+                                <i class="fa fa-video-camera text-white" aria-hidden="true"></i>
+                            </p>
+                            ';
+
+                            if ($counter % $break_after == ($break_after-1)) {
+                                $html.='</div>';
+                            }
+
+                            ++$counter;
+                        }
+
+                        echo $html;
+                    }
+                    ?>
                 </div>
             </div>
 
             <div class="tab-pane fade" id="nav-followers" role="tabpanel" aria-labelledby="nav-followers-tab">
                 <div class="col-12">
                     <?php
-                    if($get_followers == null){
-                        echo"
-                        <div class=\"text-center\">
-                            <p>You don't have followers yet</p>
-                        </div>";
-                    } else {
-                        foreach ($get_followers as $key => $fs) { ?>
-                            <div id="user-<?= $fs->ffID; ?>" class="col-12 py-2 px-0" style="border-bottom: #cccccc solid 2px;">
-                                <div class="row">
-                                    <div class="col-2 pr-0">
-                                        <?php 
-                                        if(!empty($fs->image_profile)){
-                                            $src = base_url('uploads/profile/').$fs->image_profile;
-                                        } else {
-                                            $src = base_url('assets/images/profile_active.png');
-                                        }
-                                        ?>
-                                        <img src="<?= $src; ?>" class="img-fluid rounded-circle" style="border: 2px #000 solid;">
+                    if ($this->session->has_userdata('memberLogin')) {
+                        if($followers['total'] == 0){
+                            echo"
+                            <div class=\"text-center\">
+                                <p>Don't have followers yet</p>
+                            </div>";
+                        } else {
+                            foreach ($followers['array'] as $key => $fs) { ?>
+                                <div id="user-<?= $fs['otherId']; ?>" class="col-12 py-2 px-0" style="border-bottom: #cccccc solid 2px;">
+                                    <div class="row">
+                                        <div class="col-2 pr-0 aaa">
+                                            <?php 
+                                            if(isset($fs['otherUrlPic'])){
+                                                $src = $fs['otherUrlPic'];
+                                            } else {
+                                                $src = base_url('assets/images/profile_active.png');
+                                            }
+                                            ?>
+                                            <img src="<?= $src; ?>" class="rounded-circle friend-profile">
+                                        </div>
+                                        <div class="col-6 align-self-center" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 17px;">
+                                            <span style="font-size: 14px;"><b><?= $fs['otherName']; ?></b></span>
+                                        </div>
+                                        <div class="col-4 align-self-center follow-follower text-center" otherId="<?= $fs['otherId']; ?>">
+                                            <!-- <button onClick="unfollow(<?= $fs->ffID; ?>); return false;" class="unfollow-<?= $fs->ffID; ?> custom btn btn-outline-primary form-control">Unfollow</button> -->
+                                        </div>
                                     </div>
-                                    <div class="col-6 align-self-center" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 17px;">
-                                        <span style="font-size: 14px;"><b><?= $fs->name; ?></b></span>
-                                    </div>
-                                    
-                                    <?php
-									if($this->session->has_userdata('memberLogin')){
-										if($fs->user_id <> $this->session->userdata('userId')){ 
-
-											$this->db->where('user_id', $this->session->userdata('userId'));
-											$this->db->where('following_user_id', $fs->user_id);
-											$countFollowerExist = $this->db->get('follow_friends')->num_rows();
-
-											if($countFollowerExist > 0){ ?>
-												<div class="col-4 align-self-center">
-													<button id="follow-<?= $fs->user_id; ?>" class="custom btn btn-outline-primary form-control follow-friend" status-follow="1" friend-id="<?= $fs->user_id; ?>">
-														Unfollow
-													</button>
-												</div>
-											<?php
-											} else { ?>
-												<div class="col-4 align-self-center">
-													<button id="follow-<?= $fs->user_id; ?>" class="custom btn btn-primary form-control follow-friend" status-follow="0" friend-id="<?= $fs->user_id; ?>">
-														Follow
-													</button>
-												</div>
-											<?php
-											}
-											?>
-										<?php
-										}
-									} else { ?>
-										<div class="col-4 align-self-center">
-											<a href="<?= base_url('login'); ?>" class="custom btn btn-primary form-control">
-												Follow
-											</a>
-										</div>
-									<?php
-									}
-									?>
-                                    
-                                </div>
-                            </div>
-                    <?php
+                                </div>    
+                            <?php
+                            }
                         }
+                    } else {
+                        echo'
+                        <div class="text-center">
+                            <p>You are required to <a href="'.base_url('login').'">login</a> to be able to see the list of followers</p>
+                        </div>';
                     }
                     ?>
                 </div>
@@ -241,65 +317,39 @@
             <div class="tab-pane fade" id="nav-following" role="tabpanel" aria-labelledby="nav-following-tab">
                 <div class="col-12">
                     <?php 
-                    if($get_following == null){
-                        echo "<div class=\"text-center\"><p>You haven't followed anyone yet</p></div>";
-                    } else {
-                        foreach ($get_following as $fg) { ?>
-                            <div id="user-<?= $fg->ffID; ?>" class="col-12 py-2 px-0" style="border-bottom: #cccccc solid 2px;">
-                                <div class="row">
-                                    <div class="col-2 pr-0">
-                                        <?php 
-                                        if(!empty($fg->image_profile)){
-                                            $src = base_url('uploads/profile/').$fg->image_profile;
-                                        } else {
-                                            $src = base_url('assets/images/profile_active.png');
-                                        }
-                                        ?>
-                                        <img src="<?= $src; ?>" class="img-fluid rounded-circle" style="border: 2px #000 solid;">
+                    if ($this->session->has_userdata('memberLogin')) {
+                        if($following['total'] == 0){
+                            echo "<div class=\"text-center\"><p>Hasn't followed anyone yet</p></div>";
+                        } else {
+                            foreach ($following['array'] as $key => $fg) { ?>
+                                <div id="user-<?= $fg->ffID; ?>" class="col-12 py-2 px-0" style="border-bottom: #cccccc solid 2px;">
+                                    <div class="row">
+                                        <div class="col-2 pr-0">
+                                            <?php 
+                                            if(isset($fg['otherUrlPic'])){
+                                                $src = $fg['otherUrlPic'];
+                                            } else {
+                                                $src = base_url('assets/images/profile_active.png');
+                                            }
+                                            ?>
+                                            <img src="<?= $src; ?>" class="friend-profile rounded-circle">
+                                        </div>
+                                        <div class="col-6 align-self-center" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 17px;">
+                                            <span style="font-size: 14px;"><b><?= $fg['otherName']; ?></b></span>
+                                        </div>
+                                        <div class="col-4 align-self-center follow-follower text-center" otherId="<?= $fg['otherId']; ?>">
+                                            <!-- <button onClick="unfollow(<?= $fg->ffID; ?>); return false;" class="unfollow-<?= $fg->ffID; ?> custom btn btn-outline-primary form-control">Unfollow</button> -->
+                                        </div>
                                     </div>
-                                    <div class="col-6 align-self-center" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 17px;">
-                                        <span style="font-size: 14px;"><b><?= $fg->name; ?></b></span>
-                                    </div>
-
-                                    <?php
-									if($this->session->has_userdata('memberLogin')){
-										if($fg->following_user_id <> $this->session->userdata('userId')){ 
-											
-											$this->db->where('user_id', $this->session->userdata('userId'));
-											$this->db->where('following_user_id', $fg->following_user_id);
-											$countFollowingExist = $this->db->get('follow_friends')->num_rows();
-
-											if($countFollowingExist > 0){ 
-												
-												?>
-												<div class="col-4 align-self-center">
-													<button id="follow-<?= $fg->user_id; ?>" class="custom btn btn-outline-primary form-control follow-friend" status-follow="1" friend-id="<?= $fg->user_id; ?>">
-														Unfollow
-													</button>
-												</div>
-											<?php
-											} else { ?>
-												<div class="col-4 align-self-center">
-													<button id="follow-<?= $fg->user_id; ?>" class="custom btn btn-primary form-control follow-friend" status-follow="0" friend-id="<?= $fg->user_id; ?>">
-														Follow
-													</button>
-												</div>
-											<?php
-											}
-											?>
-										<?php
-										}
-									} else { ?>
-										<a href="<?= base_url('login'); ?>" class="custom btn btn-primary form-control">
-											Follow
-										</a>
-									<?php
-									}
-                                    ?>
                                 </div>
-                            </div>
-                        <?php
+                            <?php
+                            }
                         }
+                    } else {
+                        echo'
+                        <div class="text-center">
+                            <p>You are required to <a href="'.base_url('login').'">login</a> to be able to see the list of following</p>
+                        </div>';
                     }
                     ?>
                 </div>
@@ -323,17 +373,80 @@
 
         e.preventDefault();
 
-        let status_follow = $(this).attr('status-follow');
-        let friend_id = $(this).attr('friend-id');
+        <?php 
+        if (!$this->session->has_userdata('memberLogin')) { ?>
+            
+            alert('Please login first');
+            window.location.replace("<?= base_url('/login'); ?>");
 
-        if(status_follow == "1"){
-            var url_follow = "<?= base_url('Friends/unfollow'); ?>";
-        } else {
-            var url_follow = "<?= base_url('Friends/follow'); ?>";
+        <?php 
+        } else { ?>
+
+            let status_follow = $(this).attr('status-follow');
+            let friend_id = $(this).attr('friend-id');
+
+            if(status_follow == "1"){
+                var url_follow = "<?= base_url('Friends/unfollow'); ?>";
+            } else {
+                var url_follow = "<?= base_url('Friends/follow'); ?>";
+            }
+
+            $.ajax({
+                url: url_follow,
+                type: 'POST',
+                datatype: 'json',
+                data: {
+                    "friend_id" : friend_id
+                },
+                cache: false,
+                success: function(data){
+
+                    if(data.status == 200){
+                        $('#follow-'+friend_id).attr("status-follow", data.status_follow);
+
+                        if(data.status_follow > 0){
+                            $('#follow-'+friend_id).removeClass("btn-primary").addClass("btn-outline-primary");
+                            $('#follow-'+friend_id).text("Unfollow");
+                        } else {
+                            $('#follow-'+friend_id).removeClass("btn-outline-primary").addClass("btn-primary");
+                            $('#follow-'+friend_id).text("Follow");
+                        }
+                    }
+
+                    alert(data.message);
+                }
+            });
+
+        <?php
         }
+        ?>
+    });
+
+    $(document).ready(function(){
+        $(".follow-follower").each(function(){
+            $(this).html('<i class="fa fa-spinner fa-spin loading" aria-hidden="true"></i>');
+
+            var otherId = $(this).attr("otherId");
+
+            $.ajax({
+                url: "<?= base_url('ProfileMember/check_isfollowing'); ?>",
+                type: 'POST',
+                datatype: 'json',
+                data: {
+                    otherId : otherId,
+                },
+                success: function(data){
+                    $('div[otherId="'+otherId+'"]').html(data.html);
+                }
+            });
+        });
+    });
+
+    function follow(friend_id){
+        $('#follow-'+friend_id).html('<i class="fa fa-spinner fa-spin loading" aria-hidden="true"></i>');
 
         $.ajax({
-            url: url_follow,
+            url: "<?= base_url('Friends/follow'); ?>",
             type: 'POST',
             datatype: 'json',
             data: {
@@ -341,19 +454,44 @@
             },
             cache: false,
             success: function(data){
+                
+                if(data.status == 200){
+                    $('#follow-'+friend_id).attr("status-follow", data.status_follow);
+                    $('#follow-'+friend_id).attr("onclick", "unfollow("+friend_id+")");
 
-                $('#follow-'+friend_id).attr("status-follow", data.status_follow);
-
-                if(data.status_follow > 0){
                     $('#follow-'+friend_id).removeClass("btn-primary").addClass("btn-outline-primary");
                     $('#follow-'+friend_id).text("Unfollow");
-                } else {
-                    $('#follow-'+friend_id).removeClass("btn-outline-primary").addClass("btn-primary");
-                    $('#follow-'+friend_id).text("Follow");
                 }
 
                 alert(data.message);
             }
         });
-    });
+    }
+
+    function unfollow(friend_id){
+        $('#follow-'+friend_id).html('<i class="fa fa-spinner fa-spin loading" aria-hidden="true"></i>');
+
+        $.ajax({
+            url: "<?= base_url('Friends/unfollow'); ?>",
+            type: 'POST',
+            datatype: 'json',
+            data: {
+                "friend_id" : friend_id
+            },
+            cache: false,
+            success: function(data){
+                
+                if(data.status == 200){
+                    $('#follow-'+friend_id).attr("status-follow", data.status_follow);
+                    $('#follow-'+friend_id).attr("onclick", "follow("+friend_id+")");
+
+                    $('#follow-'+friend_id).removeClass("btn-outline-primary").addClass("btn-primary");
+                    $('#follow-'+friend_id).text("Follow");
+                }
+
+                alert(data.message);
+
+            }
+        });
+    }
 </script>

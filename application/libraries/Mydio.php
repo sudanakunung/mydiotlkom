@@ -18,7 +18,8 @@ class Mydio
 		if ($param == '') {
 			return null;
 		}else{
-			$data = $this->curl->simple_get('https://mydiosing.com:8843/mydio/QueryRecording?'.http_build_query($param));
+			// $data = $this->curl->simple_get('https://mydiosing.com:8843/mydio/QueryRecording?'.http_build_query($param));
+			$data = $this->curl->simple_get('https://dev.mydiosing.com/mydio/QueryRecording?'.http_build_query($param));
 			return json_decode($data, true);
 		}
 	}
@@ -27,7 +28,8 @@ class Mydio
 		if ($param == '') {
 			return null;
 		}else{
-			$data = $this->curl->simple_get('https://mydiosing.com:8843/mydio/QuerySong?'.http_build_query($param));
+			// $data = $this->curl->simple_get('https://mydiosing.com:8843/mydio/QuerySong?'.http_build_query($param));
+			$data = $this->curl->simple_get('https://dev.mydiosing.com/mydio/QuerySong?'.http_build_query($param));
 			return json_decode($data, true);
 		}
 	}
@@ -36,7 +38,8 @@ class Mydio
 		if ($param == '') {
 			return null;
 		}else{
-			$data = $this->curl->simple_get('https://mydiosing.com:8843/mydio/QueryUser?'.http_build_query($param));
+			// $data = $this->curl->simple_get('https://mydiosing.com:8843/mydio/QueryUser?'.http_build_query($param));
+			$data = $this->curl->simple_get('https://dev.mydiosing.com/mydio/QueryUser?'.http_build_query($param));
 			return json_decode($data, true);
 		}
 	}

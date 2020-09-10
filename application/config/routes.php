@@ -49,12 +49,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | Examples:	my-controller/index	-> my_controller/index
 |		my-controller/my-method	-> my_controller/my_method
 */
+$route['Home/unlikevideo'] = 'Home/unlikevideo';
 $route['default_controller'] = 'Home';
 
 $route['install-app'] = 'Home/installApp';
 
 //Search Friends
+$route['queue'] = 'Queue/index';
+
+//Search Friends
 $route['friend-by-search'] = 'SearchFriend/index';
+$route['friend-by-search/load-more-friends'] = 'SearchFriend/load_more_friends';
 
 //Friends Page
 $route['friends'] = 'Friends/index';
@@ -78,13 +83,15 @@ $route['en'] = 'Home';
 //Member Register
 $route['register'] = 'Register/index';
 $route['register/store'] = 'Register/store';
+$route['register/success'] = 'Register/success';
+$route['register/verify'] = 'Register/verify';
 
 //Member Register
 $route['setting'] = 'Setting/index';
 
 //Category Songs
 $route['song-by-category'] = 'SongCategory/index';
-$route['filter-song/(:any)'] = 'SongCategory/filter_song/$1';
+// $route['filter-song/(:any)'] = 'SongCategory/filter_song/$1';
 
 //Search Songs
 $route['song-by-search'] = 'SearchSong/index';
@@ -99,9 +106,10 @@ $route['logout'] = 'Login/logout';
 
 //Subscription
 $route['subscription'] = 'Subscription/index';
-$route['subscription/success'] = 'Subscription/success';
+$route['subscription/success/(:any)'] = 'Subscription/success/$1';
+$route['subscription/success-callback'] = 'Subscription/success_callback';
 $route['subscription/cancel'] = 'Subscription/cancel';
-$route['subscription/paypal-ipn'] = 'Subscription/paypal_ipn';
+// $route['subscription/paypal-ipn'] = 'Subscription/paypal_ipn';
 
 // artikel route
 $route['add-post'] = 'AdminPost/index';
